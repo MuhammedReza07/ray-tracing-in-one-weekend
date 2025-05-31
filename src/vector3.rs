@@ -10,6 +10,18 @@ impl Vector3 {
         Self { value: [x, y, z] }
     }
 
+    pub fn x(self) -> f64 {
+        self.value[0]
+    }
+
+    pub fn y(self) -> f64 {
+        self.value[1]
+    }
+
+    pub fn z(self) -> f64 {
+        self.value[2]
+    }
+
     pub fn norm2(self) -> f64 {
         self.value[0] * self.value[0] + self.value[1] * self.value[1] + self.value[2] * self.value[2]
     }
