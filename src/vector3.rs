@@ -29,6 +29,24 @@ impl Vector3 {
     pub fn norm(&self) -> f64 {
         f64::sqrt(self.value[0] * self.value[0] + self.value[1] * self.value[1] + self.value[2] * self.value[2])
     }
+
+    pub fn normalize(&self) -> Vector3 {
+        *self / self.norm()
+    }
+
+    pub fn dot(self, b: Vector3) -> f64 {
+        self.value[0] * b.value[0] + self.value[1] * b.value[1] + self.value[2] * b.value[2]
+    }
+
+    pub fn cross(self, b: Vector3) -> Vector3 {
+        Vector3 {
+            value: [
+                self.value[1] * b.value[2] - b.value[1] * self.value[2],
+                b.value[0] * self.value[2] - self.value[0] * b.value[2],
+                self.value[0] * b.value[1] - b.value[0] * self.value[1]
+            ]
+        }
+    }
 }
 
 impl convert::From<[f64; 3]> for Vector3 {
@@ -107,24 +125,6 @@ impl ops::DivAssign<f64> for Vector3 {
     fn div_assign(&mut self, rhs: f64) {
         *self = *self / rhs
     }
-}
-
-pub fn dot(a: Vector3, b: Vector3) -> f64 {
-    a.value[0] * b.value[0] + a.value[1] * b.value[1] + a.value[2] * b.value[2]
-}
-
-pub fn cross(a: Vector3, b: Vector3) -> Vector3 {
-    Vector3 {
-        value: [
-            a.value[1] * b.value[2] - b.value[1] * a.value[2],
-            b.value[0] * a.value[2] - a.value[0] * b.value[2],
-            a.value[0] * b.value[1] - b.value[0] * a.value[1]
-        ]
-    }
-}
-
-pub fn normalize(v: Vector3) -> Vector3 {
-    v / v.norm()
 }
 
 #[cfg(test)]
@@ -304,15 +304,15 @@ mod tests {
     fn test_normalize() {
         let v2 = Vector3::new(1.0, 1.0, 1.0);
         let v3 = Vector3::new(1.0, 2.0, 3.0);
-        assert_eq!(normalize(v2), v2 / f64::sqrt(3.0));
-        assert_eq!(normalize(v3), v3 / f64::sqrt(1.0 + 4.0 + 9.0));
+        assert_eq!(Vector3::normalize(&v2), v2 / f64::sqrt(3.0));
+        assert_eq!(Vector3::normalize(&v3), v3 / f64::sqrt(1.0 + 4.0 + 9.0));
     }
 
     #[test]
     #[should_panic]
     fn test_normalize_zero() {
         let v1 = Vector3::new(0.0, 0.0, 0.0);
-        assert_eq!(normalize(v1), Vector3::new(0.0, 0.0, 0.0));
+        assert_eq!(v1.normalize(), Vector3::new(0.0, 0.0, 0.0));
     }
 
     #[test]
@@ -320,12 +320,12 @@ mod tests {
         let v1 = Vector3::new(0.0, 0.0, 0.0);
         let v2 = Vector3::new(1.0, 1.0, 1.0);
         let v3 = Vector3::new(1.0, 2.0, 3.0);
-        assert_eq!(dot(v1, v1), 0.0);
-        assert_eq!(dot(v2, v2), v2.norm2());
-        assert_eq!(dot(v3, v3), v3.norm2());
-        assert_eq!(dot(v1, v3), 0.0);
-        assert_eq!(dot(v2, v3), dot(v3, v2));
-        assert_eq!(dot(v2, v3), 1.0 * 1.0 + 1.0 * 2.0 + 1.0 * 3.0);
+        assert_eq!(Vector3::dot(v1, v1), 0.0);
+        assert_eq!(Vector3::dot(v2, v2), v2.norm2());
+        assert_eq!(Vector3::dot(v3, v3), v3.norm2());
+        assert_eq!(Vector3::dot(v1, v3), 0.0);
+        assert_eq!(Vector3::dot(v2, v3), Vector3::dot(v3, v2));
+        assert_eq!(Vector3::dot(v2, v3), 1.0 * 1.0 + 1.0 * 2.0 + 1.0 * 3.0);
     }
 
     #[test]
@@ -333,8 +333,8 @@ mod tests {
         let v1 = Vector3::new(1.0, 0.0, 0.0);
         let v2 = Vector3::new(0.0, 1.0, 0.0);
         let v3 = Vector3::new(0.0, 0.0, 1.0);
-        assert_eq!(cross(v1, v2), v3);
-        assert_eq!(cross(v2, v3), v1);
-        assert_eq!(cross(v3, v1), v2);
+        assert_eq!(Vector3::cross(v1, v2), v3);
+        assert_eq!(Vector3::cross(v2, v3), v1);
+        assert_eq!(v3.cross(v1), v2);
     }
 }

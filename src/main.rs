@@ -1,7 +1,7 @@
 use ray_tracing_in_one_weekend::{
     color,
     ray,
-    vector3::*
+    vector3::Vector3
 };
 
 fn main() {
@@ -35,7 +35,7 @@ fn main() {
         for i in 0..IMAGE_WIDTH {
             let pixel_center = first_pixel_center + (i as f64) * viewport_delta_u + (j as f64) * viewport_delta_v;
             let ray = ray::Ray::new(camera_center, pixel_center - camera_center);
-            let t = (normalize(ray.direction()).z() + 1.0) / 2.0;
+            let t = (ray.direction().normalize().z() + 1.0) / 2.0;
             let color = color::lerp(&color::Color::new(1.0, 1.0, 1.0), &color::Color::new(0.5, 0.7, 1.0), t);
             color::write_p3_color(&color, COLOR_DEPTH);
         }
