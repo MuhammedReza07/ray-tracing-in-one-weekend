@@ -1,30 +1,6 @@
 use ray_tracing_in_one_weekend::{
-    color,
-    ray::Ray,
-    vector3::Vector3
+    color, intersectable::Intersectable, orientable::Orientable, ray::Ray, surfaces::sphere::Sphere, vector3::Vector3
 };
-
-#[derive(Clone, Copy, Debug, PartialEq)]
-pub struct Sphere {
-    center: Vector3,
-    radius: f64
-}
-
-impl Sphere {
-    pub fn new(center: Vector3, radius: f64) -> Self {
-        Self { center, radius }
-    }
-
-    // Intersection test using the discriminant of the quadratic equation `(C - P) * (C - P) = R^2` where
-    // C is the centre of the sphere, P = Q + dt is a point on the ray, and R is the radius of the sphere.
-    pub fn hit(&self, ray: &Ray) -> bool {
-        let oc = self.center - ray.origin();
-        let a = ray.direction().norm2();
-        let b = -2.0 * Vector3::dot(ray.direction(), oc);
-        let c = oc.norm2() - self.radius;
-        b * b - 4.0 * a * c >= 0.0
-    }
-}
 
 fn main() {
     // Image.
@@ -50,8 +26,11 @@ fn main() {
     let first_pixel_center = viewport_top_left + (viewport_delta_u + viewport_delta_v) / 2.0;
 
     // Scene.
-    let sphere_1 = Sphere::new(Vector3::new(0.0, 4.0, 0.0), 0.5);
-    let sphere_2 = Sphere::new(Vector3::new(-2.5, 8.0, 0.0), 0.5);
+    const T_MIN: f64 = 0.0;
+    const T_MAX: f64 = f64::INFINITY;
+
+    let sphere_1 = Sphere::new(Vector3::new(0.0, 3.0, 0.0), 0.5);
+    let sphere_2 = Sphere::new(Vector3::new(-2.0, 6.0, 0.0), 0.5);
 
     // Render.
     color::write_p3_header(IMAGE_WIDTH, IMAGE_HEIGHT, COLOR_DEPTH);
@@ -63,10 +42,15 @@ fn main() {
             let ray = Ray::new(camera_center, pixel_center - camera_center);
             let t = (ray.direction().normalize().z() + 1.0) / 2.0;
             let color: color::Color;
-            if sphere_1.hit(&ray) {
-                color = color::Color::new(1.0, 0.0, 0.0);
-            } else if sphere_2.hit(&ray) {
-                color = color::Color::new(0.0, 1.0, 0.0);
+            
+            let t_s1 = sphere_1.intersect(&ray, T_MIN, T_MAX);
+            let t_s2 = sphere_2.intersect(&ray, T_MIN, T_MAX);
+            if t_s1.is_some() {
+                let n = sphere_1.normal(ray.at(t_s1.unwrap()));
+                color = (Vector3::from([n.x(), n.z(), n.y()]) + Vector3::from([1.0; 3])) / 2.0;
+            } else if t_s2.is_some() {
+                let n = sphere_2.normal(ray.at(t_s2.unwrap()));
+                color = (n + Vector3::from([1.0; 3])) / 2.0;
             } else {
                 color = color::lerp(&color::Color::new(1.0, 1.0, 1.0), &color::Color::new(0.5, 0.7, 1.0), t);
             }
