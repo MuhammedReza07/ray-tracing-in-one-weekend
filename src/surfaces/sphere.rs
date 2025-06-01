@@ -25,8 +25,7 @@ impl Intersectable for Sphere {
         let oc = self.center - ray.origin();
         let a = ray.direction().norm2();
         let b = -2.0 * Vector3::dot(ray.direction(), oc);
-        // TODO: Fix! This is wrong!
-        let c = oc.norm2() - self.radius;
+        let c = oc.norm2() - self.radius * self.radius;
         let d = b * b - 4.0 * a * c;
 
         if d < 0.0 {
