@@ -1,5 +1,9 @@
 use ray_tracing_in_one_weekend::{
-    color, intersectable::Intersectable, orientable::Orientable, ray::Ray, surfaces::sphere::Sphere, vector3::Vector3
+    color, 
+    renderable_list::RenderableList,
+    ray::Ray, 
+    surfaces::sphere::Sphere, 
+    vector3::Vector3
 };
 
 fn main() {
@@ -11,7 +15,7 @@ fn main() {
     const IMAGE_HEIGHT: u32 = if ASPECT_RATIO > IMAGE_WIDTH as f64 { 1 } else { (IMAGE_WIDTH as f64 / ASPECT_RATIO) as u32 };
 
     // Camera.
-    const FOCAL_LENGTH: f64 = 1.0;
+    const FOCAL_LENGTH: f64 = -1.0;
     const VIEWPORT_WIDTH: f64 = 1.0;
     const VIEWPORT_HEIGHT: f64 = VIEWPORT_WIDTH / (IMAGE_WIDTH as f64 / IMAGE_HEIGHT as f64);
 
@@ -29,8 +33,9 @@ fn main() {
     const T_MIN: f64 = 0.0;
     const T_MAX: f64 = f64::INFINITY;
 
-    let sphere_1 = Sphere::new(Vector3::new(0.0, 3.0, 0.0), 0.5);
-    let sphere_2 = Sphere::new(Vector3::new(-2.0, 6.0, 0.0), 0.5);
+    let mut scene = RenderableList::new();
+    scene.push(Box::new(Sphere::new(Vector3::new(0.0, -3.0, 0.0), 0.5)));
+    scene.push(Box::new(Sphere::new(Vector3::new(0.0, -3.0, -100.5), 100.0)));
 
     // Render.
     color::write_p3_header(IMAGE_WIDTH, IMAGE_HEIGHT, COLOR_DEPTH);
@@ -40,20 +45,18 @@ fn main() {
         for i in 0..IMAGE_WIDTH {
             let pixel_center = first_pixel_center + (i as f64) * viewport_delta_u + (j as f64) * viewport_delta_v;
             let ray = Ray::new(camera_center, pixel_center - camera_center);
-            let t = (ray.direction().normalize().z() + 1.0) / 2.0;
             let color: color::Color;
             
-            let t_s1 = sphere_1.intersect(&ray, T_MIN, T_MAX);
-            let t_s2 = sphere_2.intersect(&ray, T_MIN, T_MAX);
-            if t_s1.is_some() {
-                let n = sphere_1.normal(ray.at(t_s1.unwrap()));
+            if let Some(intersection) = scene.intersect(&ray, T_MIN, T_MAX) {
+                let p = ray.at(intersection.t);
+                let object = scene.get(intersection.index);
+                let n = object.normal(p);
                 color = (Vector3::from([n.x(), n.z(), n.y()]) + Vector3::from([1.0; 3])) / 2.0;
-            } else if t_s2.is_some() {
-                let n = sphere_2.normal(ray.at(t_s2.unwrap()));
-                color = (n + Vector3::from([1.0; 3])) / 2.0;
             } else {
+                let t = (ray.direction().normalize().z() + 1.0) / 2.0;
                 color = color::lerp(&color::Color::new(1.0, 1.0, 1.0), &color::Color::new(0.5, 0.7, 1.0), t);
             }
+            
             color::write_p3_color(&color, COLOR_DEPTH);
         }
     }

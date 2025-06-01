@@ -8,6 +8,9 @@ pub mod orientable;
 /// Abstractions for working with "intersectable" objects, e.g. surfaces.
 pub mod intersectable;
 
+/// Naive collection for ray tracing of multi-object scenes.
+pub mod renderable_list;
+
 /// Abstractions for working with rays.
 pub mod ray;
 

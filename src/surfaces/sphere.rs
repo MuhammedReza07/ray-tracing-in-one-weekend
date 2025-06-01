@@ -2,6 +2,7 @@ use crate::{
     intersectable::Intersectable,
     orientable::Orientable,
     ray::Ray,
+    renderable_list::Renderable,
     vector3::Vector3
 };
 use std::f64;
@@ -50,3 +51,5 @@ impl Orientable for Sphere {
         (p - self.center) / self.radius
     }
 }
+
+impl Renderable for Sphere {}
