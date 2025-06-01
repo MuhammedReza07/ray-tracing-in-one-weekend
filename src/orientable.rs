@@ -1,0 +1,19 @@
+use crate::{ray::Ray, vector3::Vector3};
+
+/// Trait for objects that admit an assignment of surface normals to each point of their surface.
+pub trait Orientable {
+    /// Returns an outward-facing surface normal of the object at `p`. The returned normal is of unit length.
+    /// 
+    /// Note that `p` must lie on the surface of the object for this method to behave as intended.
+    fn normal(&self, p: Vector3) -> Vector3;
+
+    /// Returns `true` if the intersection of `ray` and the object at `t` occurred
+    /// with `ray` going out from the object, `false` otherwise.
+    fn is_inside(&self, ray: Ray, t: f64) -> bool {
+        let p = ray.at(t);
+        if Vector3::dot(ray.direction(), self.normal(p)) >= 0.0 {
+            return true;
+        }
+        false
+    }
+}
