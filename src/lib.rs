@@ -1,3 +1,6 @@
+/// Abstractions for working with the camera and scene-rendering.
+pub mod camera;
+
 /// Functions for working with RGB colours as real vectors with components in the range `[0, 1]`.
 pub mod color;
 

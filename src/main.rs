@@ -1,65 +1,37 @@
 use ray_tracing_in_one_weekend::{
-    color, 
+    camera::Camera,
     renderable_list::RenderableList,
-    ray::Ray, 
     surfaces::sphere::Sphere, 
     vector3::Vector3
 };
 
+// Set image and camera parameters.
+const ASPECT_RATIO: f64 = 16.0 / 9.0;
+const COLOR_DEPTH: u32 = 255;
+const FOCAL_LENGTH: f64 = -1.0;
+const IMAGE_WIDTH: u32 = 400;
+const VIEWPORT_WIDTH: f64 = 1.0;
+const T_MIN: f64 = 0.0;
+const T_MAX: f64 = f64::INFINITY;
+
 fn main() {
-    // Image.
-    const ASPECT_RATIO: f64 = 16.0 / 9.0;
-    const COLOR_DEPTH: u32 = 255;
-    const IMAGE_WIDTH: u32 = 400;
-    // Ensure that IMAGE_HEIGHT is at least 1.
-    const IMAGE_HEIGHT: u32 = if ASPECT_RATIO > IMAGE_WIDTH as f64 { 1 } else { (IMAGE_WIDTH as f64 / ASPECT_RATIO) as u32 };
-
     // Camera.
-    const FOCAL_LENGTH: f64 = -1.0;
-    const VIEWPORT_WIDTH: f64 = 1.0;
-    const VIEWPORT_HEIGHT: f64 = VIEWPORT_WIDTH / (IMAGE_WIDTH as f64 / IMAGE_HEIGHT as f64);
-
-    let camera_center = Vector3::new(0.0, 0.0, 0.0);
-    let viewport_u = Vector3::new(VIEWPORT_WIDTH, 0.0, 0.0);
-    let viewport_v = Vector3::new(0.0, 0.0, -VIEWPORT_HEIGHT);
-    let viewport_offset = Vector3::new(0.0, FOCAL_LENGTH, 0.0);
-    let viewport_top_left = camera_center + viewport_offset - (viewport_u + viewport_v) / 2.0;
-
-    let viewport_delta_u = viewport_u / (IMAGE_WIDTH as f64);
-    let viewport_delta_v = viewport_v / (IMAGE_HEIGHT as f64);
-    let first_pixel_center = viewport_top_left + (viewport_delta_u + viewport_delta_v) / 2.0;
+    let camera = Camera::new(
+        ASPECT_RATIO, 
+        Vector3::new(0.0, 0.0, 0.0),
+        COLOR_DEPTH,
+        FOCAL_LENGTH,
+        IMAGE_WIDTH,
+        VIEWPORT_WIDTH,
+        T_MIN,
+        T_MAX
+    );
 
     // Scene.
-    const T_MIN: f64 = 0.0;
-    const T_MAX: f64 = f64::INFINITY;
-
     let mut scene = RenderableList::new();
     scene.push(Box::new(Sphere::new(Vector3::new(0.0, -3.0, 0.0), 0.5)));
     scene.push(Box::new(Sphere::new(Vector3::new(0.0, -3.0, -100.5), 100.0)));
 
     // Render.
-    color::write_p3_header(IMAGE_WIDTH, IMAGE_HEIGHT, COLOR_DEPTH);
-
-    for j in 0..IMAGE_HEIGHT {
-        eprintln!("Scan lines remaining: {}", IMAGE_HEIGHT - j);
-        for i in 0..IMAGE_WIDTH {
-            let pixel_center = first_pixel_center + (i as f64) * viewport_delta_u + (j as f64) * viewport_delta_v;
-            let ray = Ray::new(camera_center, pixel_center - camera_center);
-            let color: color::Color;
-            
-            if let Some(intersection) = scene.intersect(&ray, T_MIN, T_MAX) {
-                let p = ray.at(intersection.t);
-                let object = scene.get(intersection.index);
-                let n = object.normal(p);
-                color = (Vector3::from([n.x(), n.z(), n.y()]) + Vector3::from([1.0; 3])) / 2.0;
-            } else {
-                let t = (ray.direction().normalize().z() + 1.0) / 2.0;
-                color = color::lerp(&color::Color::new(1.0, 1.0, 1.0), &color::Color::new(0.5, 0.7, 1.0), t);
-            }
-            
-            color::write_p3_color(&color, COLOR_DEPTH);
-        }
-    }
-    
-    eprintln!("Finished rendering.")
+    camera.render(&scene);
 }
