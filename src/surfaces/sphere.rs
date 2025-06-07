@@ -10,7 +10,7 @@ use std::f64;
 #[derive(Clone, Copy, Debug, PartialEq)]
 pub struct Sphere {
     pub center: Vector3,
-    radius: f64
+    pub radius: f64
 }
 
 impl Sphere {
@@ -23,9 +23,9 @@ impl Intersectable for Sphere {
     // Intersection computed using the quadratic equation (C - P) * (C - P) = R^2, where
     // C is the centre of the sphere, P = Q + dt is a point on the ray, and R is the radius of the sphere.
     fn intersect(&self, ray: &Ray, t_min: f64, t_max: f64) -> Option<f64> {
-        let oc = self.center - ray.origin();
-        let a = ray.direction().norm2();
-        let b = -2.0 * Vector3::dot(ray.direction(), oc);
+        let oc = self.center - ray.origin;
+        let a = ray.direction.norm2();
+        let b = -2.0 * Vector3::dot(ray.direction, oc);
         let c = oc.norm2() - self.radius * self.radius;
         let d = b * b - 4.0 * a * c;
 
