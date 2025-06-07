@@ -11,11 +11,14 @@ pub mod orientable;
 /// Abstractions for working with "intersectable" objects, e.g. surfaces.
 pub mod intersectable;
 
-/// Naive collection for ray tracing of multi-object scenes.
-pub mod renderable_list;
+/// Various random number, or rather vector, generation utilities.
+pub mod random;
 
 /// Abstractions for working with rays.
 pub mod ray;
+
+/// Naive collection for ray tracing of multi-object scenes.
+pub mod renderable_list;
 
 /// Intersectable surfaces.
 pub mod surfaces;
