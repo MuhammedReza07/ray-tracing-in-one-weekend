@@ -30,22 +30,26 @@ impl Vector3 {
         f64::sqrt(self.value[0] * self.value[0] + self.value[1] * self.value[1] + self.value[2] * self.value[2])
     }
 
-    pub fn normalize(&self) -> Vector3 {
+    pub fn normalize(&self) -> Self {
         *self / self.norm()
     }
 
-    pub fn dot(self, b: Vector3) -> f64 {
-        self.value[0] * b.value[0] + self.value[1] * b.value[1] + self.value[2] * b.value[2]
+    pub fn dot(self, rhs: Self) -> f64 {
+        self.value[0] * rhs.value[0] + self.value[1] * rhs.value[1] + self.value[2] * rhs.value[2]
     }
 
-    pub fn cross(self, b: Vector3) -> Vector3 {
-        Vector3 {
+    pub fn cross(self, rhs: Self) -> Self {
+        Self {
             value: [
-                self.value[1] * b.value[2] - b.value[1] * self.value[2],
-                b.value[0] * self.value[2] - self.value[0] * b.value[2],
-                self.value[0] * b.value[1] - b.value[0] * self.value[1]
+                self.value[1] * rhs.value[2] - rhs.value[1] * self.value[2],
+                rhs.value[0] * self.value[2] - self.value[0] * rhs.value[2],
+                self.value[0] * rhs.value[1] - rhs.value[0] * self.value[1]
             ]
         }
+    }
+
+    pub fn multiply_components(self, rhs: Self) -> Self {
+        Self { value: [self.value[0] * rhs.value[0], self.value[1] * rhs.value[1], self.value[2] * rhs.value[2]] }
     }
 }
 
@@ -336,5 +340,12 @@ mod tests {
         assert_eq!(Vector3::cross(v1, v2), v3);
         assert_eq!(Vector3::cross(v2, v3), v1);
         assert_eq!(v3.cross(v1), v2);
+    }
+
+    #[test]
+    fn test_multiply_components() {
+        assert_eq!(Vector3::from([0.0; 3]), Vector3::multiply_components(Vector3::from([1.0, 2.0, 3.0]), Vector3::from([0.0; 3])));
+        assert_eq!(Vector3::multiply_components(Vector3::new(1.0, 2.0, 3.0), Vector3::new(1.0, 2.0, 3.0)), Vector3::new(1.0 * 1.0, 2.0 * 2.0, 3.0 * 3.0));
+        assert_eq!(Vector3::multiply_components(Vector3::new(1.0, 2.0, 3.0), Vector3::from([3.0; 3])), 3.0 * Vector3::new(1.0, 2.0, 3.0));
     }
 }
