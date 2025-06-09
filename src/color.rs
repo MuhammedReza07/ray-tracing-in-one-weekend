@@ -1,7 +1,7 @@
 use std::f64;
 use crate::vector3::Vector3;
 
-/// Linearly interpolate from `a` to `b`, t must be in `[0, 1]`.
+/// Linearly interpolate from `a` to `b`, `t` must be in `[0, 1]`.
 pub fn lerp(a: &Vector3, b: &Vector3, t: f64) -> Vector3 {
     *a + t * (*b - *a)
 }
