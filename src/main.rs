@@ -26,12 +26,12 @@ const ASPECT_RATIO: f64 = 16.0 / 9.0;
 const COLOR_DEPTH: u32 = 255;
 const DECODING_GAMMA: f64 = 2.2;
 const FOCAL_LENGTH: f64 = -1.0;
-const IMAGE_WIDTH: u32 = 400;
+const IMAGE_WIDTH: u32 = 800;
 const VIEWPORT_WIDTH: f64 = 1.0;
 const T_MIN: f64 = 0.001;
 const T_MAX: f64 = f64::INFINITY;
 const MAX_DEPTH: u32 = 64;
-const SAMPLES_PER_PIXEL: u32 = 32;
+const SAMPLES_PER_PIXEL: u32 = 64;
 
 fn main() {
     // RNG.
@@ -57,9 +57,8 @@ fn main() {
     let no_material = Rc::new(materials::None);
     let material_ground = Rc::new(Lambertian::new(Vector3::new(0.8, 0.8, 0.0), rng.clone()));
     let material_center = Rc::new(Lambertian::new(Vector3::new(0.1, 0.2, 0.5), rng.clone()));
-    // let material_left = Rc::new(FuzzySpecular::new(Vector3::new(0.8, 0.8, 0.8), 0.3, rng.clone()));
-    // let material_left = Rc::new(Dielectric::new(Vector3::from([1.0; 3]), 1.5));
-    let material_left = Rc::new(Dielectric::new(Vector3::new(0.25,2.0,2.0), 1.5, rng.clone()));
+    let material_left = Rc::new(Dielectric::new(Vector3::new(0.0,0.0, 0.0), 1.5, rng.clone()));
+    let material_bubble = Rc::new(Dielectric::new(Vector3::new(0.0, 0.0, 0.0), 1.0 / 1.5, rng.clone()));
     let material_right = Rc::new(FuzzySpecular::new(Vector3::new(0.8, 0.6, 0.2), 1.0, rng.clone()));
 
     // Scene.
@@ -68,6 +67,7 @@ fn main() {
     scene.push(Box::new(Sphere::new(Vector3::new(0.0, -3.0, -100.5), 100.0, material_ground.clone())));
     scene.push(Box::new(Sphere::new(Vector3::new(0.0, -3.2, 0.0), 0.5, material_center.clone())));
     scene.push(Box::new(Sphere::new(Vector3::new(-1.0, -3.0, 0.0), 0.5, material_left.clone())));
+    scene.push(Box::new(Sphere::new(Vector3::new(-1.0, -3.0, 0.0), 0.4, material_bubble.clone())));
     scene.push(Box::new(Sphere::new(Vector3::new(1.0, -3.0, 0.0), 0.5, material_right.clone())));
 
     // Render.
