@@ -9,9 +9,9 @@ pub trait Orientable {
 
     /// Returns `true` if the intersection of `ray` and the object at `t` occurred
     /// with `ray` going out from the object, `false` otherwise.
-    fn is_inside(&self, ray: Ray, t: f64) -> bool {
-        let p = ray.at(t);
-        if Vector3::dot(ray.direction, self.normal(p)) >= 0.0 {
+    fn is_inside(&self, r: Ray, t: f64) -> bool {
+        let p = r.at(t);
+        if Vector3::dot(r.direction, self.normal(p)) >= 0.0 {
             return true;
         }
         false
