@@ -95,10 +95,10 @@ impl<R: Rng> Camera<R> {
                     let mut ray_color = Vector3::from([0.0; 3]);
                     let mut depth = 0;
                     while depth < self.max_depth {
-                        if let Some(intersection) = scene.intersect(&ray, self.t_min, self.t_max) {
+                        if let Some(intersection) = scene.intersect(ray, self.t_min, self.t_max) {
                             let object = scene.get(intersection.index);
-                            ray_attenuation = Vector3::multiply_components(ray_attenuation, object.attenuation(&ray, intersection.t));
-                            ray = object.scatter(&ray, intersection.t);
+                            ray_attenuation = Vector3::multiply_components(ray_attenuation, object.attenuation(ray, intersection.t));
+                            ray = object.scatter(ray, intersection.t);
                         } else {
                             let t: f64 = (ray.direction.normalize().z() + 1.0) / 2.0;
                             ray_color = Vector3::multiply_components(ray_attenuation, lerp(Vector3::from([1.0; 3]), Vector3::new(0.5, 0.7, 1.0), t));

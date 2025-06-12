@@ -10,12 +10,12 @@ use std::rc::Rc;
 pub struct None;
 
 impl Material for None {
-    fn attenuation(&self, _r: &Ray, _t: f64, _n: Vector3) -> Vector3 {
+    fn attenuation(&self, _r: Ray, _t: f64, _n: Vector3) -> Vector3 {
         // Do not attenuate incoming rays.
         Vector3::from([1.0; 3])
     }
 
-    fn scatter(&self, r: &Ray, t: f64, _n: Vector3) -> Ray {
+    fn scatter(&self, r: Ray, t: f64, _n: Vector3) -> Ray {
         // Do not scatter incoming rays.
         Ray::new(r.at(t), r.direction)
     }
@@ -28,20 +28,20 @@ impl Material for None {
 pub trait Tangible: Intersectable + Orientable {
     fn material(&self) -> &Rc<dyn Material>;
 
-    fn attenuation(&self, r: &Ray, t: f64) -> Vector3 {
+    fn attenuation(&self, r: Ray, t: f64) -> Vector3 {
         self.material().attenuation(r, t, self.normal(r.at(t)))
     }
 
-    fn scatter(&self, r: &Ray, t: f64) -> Ray {
+    fn scatter(&self, r: Ray, t: f64) -> Ray {
         self.material().scatter(r, t, self.normal(r.at(t)))
     }
 }
 
 /// Trait defining a common interface for materials.
 pub trait Material {
-    fn attenuation(&self, r: &Ray, t: f64, n: Vector3) -> Vector3;
+    fn attenuation(&self, r: Ray, t: f64, n: Vector3) -> Vector3;
 
-    fn scatter(&self, r: &Ray, t: f64, n: Vector3) -> Ray;
+    fn scatter(&self, r: Ray, t: f64, n: Vector3) -> Ray;
 }
 
 /// Non-Lambertian diffuse material that randomly reflects incoming rays.

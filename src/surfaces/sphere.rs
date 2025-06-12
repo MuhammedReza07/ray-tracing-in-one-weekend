@@ -29,7 +29,7 @@ impl Sphere {
 impl Intersectable for Sphere {
     // Intersection computed using the quadratic equation (C - P) * (C - P) = R^2, where
     // C is the centre of the sphere, P = Q + dt is a point on the ray, and R is the radius of the sphere.
-    fn intersect(&self, r: &Ray, t_min: f64, t_max: f64) -> Option<f64> {
+    fn intersect(&self, r: Ray, t_min: f64, t_max: f64) -> Option<f64> {
         let oc = self.center - r.origin;
         let a = r.direction.norm2();
         let b = -2.0 * Vector3::dot(r.direction, oc);

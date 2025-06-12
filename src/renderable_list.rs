@@ -29,7 +29,7 @@ impl RenderableList {
     /// Finds the smallest value of `t` such that `ray` intersects an element of the list and `t` lies in `[t_min, t_max]`, and the index `i`
     /// 
     /// of the list element that yields the minimal `t`. Returns `Some(Intersection { t, i })` if such a `t` is found, `None` otherwise.
-    pub fn intersect(&self, r: &Ray, t_min: f64, t_max: f64) -> Option<Intersection> {
+    pub fn intersect(&self, r: Ray, t_min: f64, t_max: f64) -> Option<Intersection> {
         let mut intersection_index: usize = 0;
         let mut intersection_t = f64::INFINITY;
         for (i, e) in self.elements.iter().enumerate() {
