@@ -1,31 +1,38 @@
 use crate::{
     intersectable::Intersectable,
     orientable::Orientable,
+    materials::{Material, Tangible},
     ray::Ray,
-    renderable_list::Renderable,
     vector3::Vector3
 };
-use std::f64;
+use std::{
+    f64,
+    rc::Rc
+};
 
-#[derive(Clone, Copy, Debug, PartialEq)]
 pub struct Sphere {
     pub center: Vector3,
-    pub radius: f64
+    pub radius: f64,
+    material: Rc<dyn Material>
 }
 
 impl Sphere {
-    pub fn new(center: Vector3, radius: f64) -> Self {
-        Self { center, radius }
+    pub fn new(
+        center: Vector3, 
+        radius: f64,
+        material: Rc<dyn Material>
+    ) -> Self {
+        Self { center, radius, material }
     }
 }
 
 impl Intersectable for Sphere {
     // Intersection computed using the quadratic equation (C - P) * (C - P) = R^2, where
     // C is the centre of the sphere, P = Q + dt is a point on the ray, and R is the radius of the sphere.
-    fn intersect(&self, ray: &Ray, t_min: f64, t_max: f64) -> Option<f64> {
-        let oc = self.center - ray.origin;
-        let a = ray.direction.norm2();
-        let b = -2.0 * Vector3::dot(ray.direction, oc);
+    fn intersect(&self, r: &Ray, t_min: f64, t_max: f64) -> Option<f64> {
+        let oc = self.center - r.origin;
+        let a = r.direction.norm2();
+        let b = -2.0 * Vector3::dot(r.direction, oc);
         let c = oc.norm2() - self.radius * self.radius;
         let d = b * b - 4.0 * a * c;
 
@@ -52,4 +59,8 @@ impl Orientable for Sphere {
     }
 }
 
-impl Renderable for Sphere {}
+impl Tangible for Sphere {
+    fn material(&self) -> &Rc<dyn Material> {
+        &self.material
+    }
+}
