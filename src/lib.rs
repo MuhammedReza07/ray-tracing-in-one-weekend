@@ -4,6 +4,9 @@ pub mod camera;
 /// Functions for working with RGB colours as real vectors with components in the range `[0, 1]`.
 pub mod color;
 
+/// Abstractions for working with materials and various instances of materials.
+pub mod materials;
+
 /// Abstractions for working with orientable objects, i.e. objects that admit an assignment of
 /// surface normals to each point of their surface.
 pub mod orientable;
