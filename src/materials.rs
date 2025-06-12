@@ -12,7 +12,7 @@ pub struct None;
 impl Material for None {
     fn attenuation(&self, _r: Ray, _t: f64, _n: Vector3, _is_inside: bool) -> Vector3 {
         // Do not attenuate incoming rays.
-        Vector3::from([1.0; 3])
+        Vector3::new(1.0, 1.0, 1.0)
     }
 
     fn scatter(&self, r: Ray, t: f64, _n: Vector3, _is_inside: bool) -> Ray {

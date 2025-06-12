@@ -2,6 +2,7 @@ use ray_tracing_in_one_weekend::{
     camera::Camera,
     materials::{
         self,
+        dielectric::Dielectric,
         diffuse::Diffuse,
         fuzzy_specular::FuzzySpecular,
         lambertian::Lambertian,
@@ -56,14 +57,16 @@ fn main() {
     let no_material = Rc::new(materials::None);
     let material_ground = Rc::new(Lambertian::new(Vector3::new(0.8, 0.8, 0.0), rng.clone()));
     let material_center = Rc::new(Lambertian::new(Vector3::new(0.1, 0.2, 0.5), rng.clone()));
-    let material_left = Rc::new(FuzzySpecular::new(Vector3::new(0.8, 0.8, 0.8), 0.3, rng.clone()));
+    // let material_left = Rc::new(FuzzySpecular::new(Vector3::new(0.8, 0.8, 0.8), 0.3, rng.clone()));
+    // let material_left = Rc::new(Dielectric::new(Vector3::from([1.0; 3]), 1.5));
+    let material_left = Rc::new(Dielectric::new(Vector3::new(0.25,2.0,2.0), 1.5, rng.clone()));
     let material_right = Rc::new(FuzzySpecular::new(Vector3::new(0.8, 0.6, 0.2), 1.0, rng.clone()));
 
     // Scene.
     let mut scene = RenderableList::new();
     scene.push(Box::new(Sphere::new(Vector3::new(0.0, 0.0, 0.0), 100.0, no_material.clone())));
     scene.push(Box::new(Sphere::new(Vector3::new(0.0, -3.0, -100.5), 100.0, material_ground.clone())));
-    scene.push(Box::new(Sphere::new(Vector3::new(0.0, -3.5, 0.0), 0.5, material_center.clone())));
+    scene.push(Box::new(Sphere::new(Vector3::new(0.0, -3.2, 0.0), 0.5, material_center.clone())));
     scene.push(Box::new(Sphere::new(Vector3::new(-1.0, -3.0, 0.0), 0.5, material_left.clone())));
     scene.push(Box::new(Sphere::new(Vector3::new(1.0, -3.0, 0.0), 0.5, material_right.clone())));
 
