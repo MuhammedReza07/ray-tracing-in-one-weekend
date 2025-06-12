@@ -7,8 +7,8 @@ pub trait Orientable {
     /// Note that `p` must lie on the surface of the object for this method to behave as intended.
     fn normal(&self, p: Vector3) -> Vector3;
 
-    /// Returns `true` if the intersection of `ray` and the object at `t` occurred
-    /// with `ray` going out from the object, `false` otherwise.
+    /// Returns `true` if the intersection of `r` and the object at `t` occurred
+    /// with `r` going out from the object, `false` otherwise.
     fn is_inside(&self, r: Ray, t: f64) -> bool {
         let p = r.at(t);
         if Vector3::dot(r.direction, self.normal(p)) >= 0.0 {
