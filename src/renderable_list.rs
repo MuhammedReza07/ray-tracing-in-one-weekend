@@ -1,11 +1,8 @@
 use crate::{
-    intersectable::Intersectable,
-    orientable::Orientable,
+    materials::Tangible,
     ray::Ray
 };
 use std::f64;
-
-pub trait Renderable: Intersectable + Orientable {}
 
 pub struct Intersection {
     pub t: f64,
@@ -13,7 +10,7 @@ pub struct Intersection {
 }
 
 pub struct RenderableList {
-    elements: Vec<Box<dyn Renderable>>
+    elements: Vec<Box<dyn Tangible>>
 }
 
 impl RenderableList {
@@ -21,22 +18,22 @@ impl RenderableList {
         Self { elements: Vec::new() }
     }
 
-    pub fn get(&self, index: usize) -> &Box<dyn Renderable> {
+    pub fn get(&self, index: usize) -> &Box<dyn Tangible> {
         &self.elements[index]
     }
 
-    pub fn push(&mut self, element: Box<dyn Renderable>) {
+    pub fn push(&mut self, element: Box<dyn Tangible>) {
         self.elements.push(element);
     }
 
     /// Finds the smallest value of `t` such that `ray` intersects an element of the list and `t` lies in `[t_min, t_max]`, and the index `i`
     /// 
     /// of the list element that yields the minimal `t`. Returns `Some(Intersection { t, i })` if such a `t` is found, `None` otherwise.
-    pub fn intersect(&self, ray: &Ray, t_min: f64, t_max: f64) -> Option<Intersection> {
+    pub fn intersect(&self, r: &Ray, t_min: f64, t_max: f64) -> Option<Intersection> {
         let mut intersection_index: usize = 0;
         let mut intersection_t = f64::INFINITY;
         for (i, e) in self.elements.iter().enumerate() {
-            if let Some(t) = e.intersect(ray, t_min, t_max) {
+            if let Some(t) = e.intersect(r, t_min, t_max) {
                 if t < intersection_t {
                     intersection_index = i;
                     intersection_t = t;
