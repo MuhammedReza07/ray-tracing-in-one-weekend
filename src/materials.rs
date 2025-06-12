@@ -10,12 +10,12 @@ use std::rc::Rc;
 pub struct None;
 
 impl Material for None {
-    fn attenuation(&self, _r: Ray, _t: f64, _n: Vector3) -> Vector3 {
+    fn attenuation(&self, _r: Ray, _t: f64, _n: Vector3, _is_inside: bool) -> Vector3 {
         // Do not attenuate incoming rays.
         Vector3::from([1.0; 3])
     }
 
-    fn scatter(&self, r: Ray, t: f64, _n: Vector3) -> Ray {
+    fn scatter(&self, r: Ray, t: f64, _n: Vector3, _is_inside: bool) -> Ray {
         // Do not scatter incoming rays.
         Ray::new(r.at(t), r.direction)
     }
@@ -29,20 +29,23 @@ pub trait Tangible: Intersectable + Orientable {
     fn material(&self) -> &Rc<dyn Material>;
 
     fn attenuation(&self, r: Ray, t: f64) -> Vector3 {
-        self.material().attenuation(r, t, self.normal(r.at(t)))
+        self.material().attenuation(r, t, self.normal(r.at(t)), self.is_inside(r, t))
     }
 
     fn scatter(&self, r: Ray, t: f64) -> Ray {
-        self.material().scatter(r, t, self.normal(r.at(t)))
+        self.material().scatter(r, t, self.normal(r.at(t)), self.is_inside(r, t))
     }
 }
 
 /// Trait defining a common interface for materials.
 pub trait Material {
-    fn attenuation(&self, r: Ray, t: f64, n: Vector3) -> Vector3;
+    fn attenuation(&self, r: Ray, t: f64, n: Vector3, is_inside: bool) -> Vector3;
 
-    fn scatter(&self, r: Ray, t: f64, n: Vector3) -> Ray;
+    fn scatter(&self, r: Ray, t: f64, n: Vector3, is_inside: bool) -> Ray;
 }
+
+/// Dielectric material that attenuates rays in accordance with Beer's law.
+pub mod dielectric;
 
 /// Non-Lambertian diffuse material that randomly reflects incoming rays.
 pub mod diffuse;
