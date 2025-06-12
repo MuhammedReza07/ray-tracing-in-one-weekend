@@ -16,11 +16,11 @@ impl Specular {
 }
 
 impl Material for Specular {
-    fn attenuation(&self, _r: Ray, _t: f64, _n: Vector3) -> Vector3 {
+    fn attenuation(&self, _r: Ray, _t: f64, _n: Vector3, _is_inside: bool) -> Vector3 {
         self.attenuation
     }
 
-    fn scatter(&self, r: Ray, t: f64, n: Vector3) -> Ray {
+    fn scatter(&self, r: Ray, t: f64, n: Vector3, _is_inside: bool) -> Ray {
         Ray::new(r.at(t), r.direction - 2.0 * Vector3::dot(r.direction, n) * n)
     }
 }

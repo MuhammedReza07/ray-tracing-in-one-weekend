@@ -26,11 +26,11 @@ impl<R: Rng> Lambertian<R> {
 }
 
 impl<R: Rng> Material for Lambertian<R> {
-    fn attenuation(&self, _r: Ray, _t: f64, _n: Vector3) -> Vector3 {
+    fn attenuation(&self, _r: Ray, _t: f64, _n: Vector3, _is_inside: bool) -> Vector3 {
         self.attenuation
     }
 
-    fn scatter(&self, r: Ray, t: f64, n: Vector3) -> Ray {
+    fn scatter(&self, r: Ray, t: f64, n: Vector3, _is_inside: bool) -> Ray {
         let rng_ref = &mut self.rng.borrow_mut();
         Ray::new(r.at(t), sample_unit_sphere_uniform(rng_ref) + n)
     }

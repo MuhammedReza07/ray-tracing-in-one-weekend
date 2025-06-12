@@ -32,11 +32,11 @@ impl<R: Rng> FuzzySpecular<R> {
 }
 
 impl<R: Rng> Material for FuzzySpecular<R> {
-    fn attenuation(&self, _r: Ray, _t: f64, _n: Vector3) -> Vector3 {
+    fn attenuation(&self, _r: Ray, _t: f64, _n: Vector3, _is_inside: bool) -> Vector3 {
         self.attenuation
     }
 
-    fn scatter(&self, r: Ray, t: f64, n: Vector3) -> Ray {
+    fn scatter(&self, r: Ray, t: f64, n: Vector3, _is_inside: bool) -> Ray {
         let rng_ref = &mut self.rng.borrow_mut();
         // Rejection sampling for the win!
         let direction_specular_normalized = (r.direction - 2.0 * Vector3::dot(r.direction, n) * n).normalize();
