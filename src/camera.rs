@@ -26,6 +26,8 @@ pub struct Camera<R: Rng> {
     t_max: f64,
     max_depth: u32,
     samples_per_pixel: u32,
+    focus_distance: f64,
+    defocus_angle: f64,
     rng: Rc<RefCell<R>>
 }
 
@@ -43,6 +45,8 @@ impl<R: Rng> Camera<R> {
         t_max: f64,
         max_depth: u32,
         samples_per_pixel: u32,
+        focus_distance: f64,
+        defocus_angle: f64,
         rng: Rc<RefCell<R>>
     ) -> Self {
         Self {
@@ -58,6 +62,8 @@ impl<R: Rng> Camera<R> {
             t_max,
             max_depth,
             samples_per_pixel,
+            focus_distance,     // In this case, focus distance = focal length = distance from look_from to image plane.
+            defocus_angle,
             rng
         }
     }
@@ -67,8 +73,7 @@ impl<R: Rng> Camera<R> {
         // Ensure that image_height is at least 1.
         let image_height = if self.aspect_ratio > self.image_width as f64 { 1 } else { (self.image_width as f64 / self.aspect_ratio) as u32 };
 
-        let focal_length = (self.look_at - self.look_from).norm();
-        let viewport_width = 2.0 * focal_length * f64::tan(self.hfov_rad / 2.0);
+        let viewport_width = 2.0 * self.focus_distance * f64::tan(self.hfov_rad / 2.0);
         let viewport_height = viewport_width / (self.image_width as f64 / image_height as f64);
 
         // Form an orthonormal basis describing the orientation of the camera.
@@ -78,7 +83,7 @@ impl<R: Rng> Camera<R> {
 
         let viewport_u = viewport_width * u;
         let viewport_v = -viewport_height * v;
-        let viewport_top_left = self.look_from + focal_length * w - (viewport_u + viewport_v) / 2.0;
+        let viewport_top_left = self.look_from + self.focus_distance * w - (viewport_u + viewport_v) / 2.0;
 
         let viewport_delta_u = viewport_u / (self.image_width as f64);
         let viewport_delta_v = viewport_v / (image_height as f64);
@@ -88,6 +93,7 @@ impl<R: Rng> Camera<R> {
         // Radius of the disk used for anti-aliasing.
         let encoding_gamma = self.decoding_gamma.recip();
         let anti_aliasing_disk_r = f64::max(viewport_delta_u.norm(), viewport_delta_v.norm());
+        let defocus_radius = self.focus_distance * f64::tan(self.defocus_angle / 2.0);
 
         // Render.
         write_p3_header(self.image_width, image_height, self.color_depth);
@@ -98,9 +104,12 @@ impl<R: Rng> Camera<R> {
                 let mut acc_color = Vector3::from([0.0; 3]);
                 let pixel_center = first_pixel_center + (i as f64) * viewport_delta_u + (j as f64) * viewport_delta_v;
                 for _ in 0..self.samples_per_pixel {
-                    let disk_sample = self.sample_unit_disk_uniform();
-                    let ray_offset = anti_aliasing_disk_r * Vector3::new(disk_sample.x(), 0.0, disk_sample.y());
-                    let mut ray = Ray::new(self.look_from, pixel_center - self.look_from + ray_offset);
+                    let anti_aliasing_disk_sample = self.sample_unit_disk_uniform();
+                    let defocus_disk_sample = self.sample_unit_disk_uniform();
+                    let ray_origin_offset = defocus_radius * (defocus_disk_sample.x() * u + defocus_disk_sample.y() * v);
+                    let ray_direction_offset = anti_aliasing_disk_r * Vector3::new(anti_aliasing_disk_sample.x(), 0.0, anti_aliasing_disk_sample.y());
+                    let ray_origin = self.look_from + ray_origin_offset;
+                    let mut ray = Ray::new(ray_origin, pixel_center + ray_direction_offset - ray_origin);
                     let mut ray_attenuation = Vector3::new(1.0, 1.0, 1.0);
                     let mut ray_color = Vector3::from([0.0; 3]);
                     let mut depth = 0;

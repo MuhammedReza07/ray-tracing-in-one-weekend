@@ -36,6 +36,8 @@ const T_MIN: f64 = 0.001;
 const T_MAX: f64 = f64::INFINITY;
 const MAX_DEPTH: u32 = 64;
 const SAMPLES_PER_PIXEL: u32 = 64;
+const FOCUS_DISTANCE: f64 = 3.4;
+const DEFOCUS_ANGLE: f64 = f64::consts::PI * (1.0 / 18.0);
 
 fn main() {
     // RNG.
@@ -56,6 +58,8 @@ fn main() {
         T_MAX,
         MAX_DEPTH,
         SAMPLES_PER_PIXEL,
+        FOCUS_DISTANCE,
+        DEFOCUS_ANGLE,
         rng.clone()
     );
 
