@@ -15,12 +15,13 @@ use std::{
 #[derive(Clone, Debug, PartialEq)]
 pub struct Camera<R: Rng> {
     aspect_ratio: f64,
-    center: Vector3,
+    look_from: Vector3,
+    look_at: Vector3,
+    vup: Vector3,
     color_depth: u32,
     decoding_gamma: f64,
-    focal_length: f64,
+    hfov_rad: f64,
     image_width: u32,
-    viewport_width: f64,
     t_min: f64,
     t_max: f64,
     max_depth: u32,
@@ -31,12 +32,13 @@ pub struct Camera<R: Rng> {
 impl<R: Rng> Camera<R> {
     pub fn new(
         aspect_ratio: f64,
-        center: Vector3,
+        look_from: Vector3,
+        look_at: Vector3,
+        vup: Vector3,
         color_depth: u32,
         decoding_gamma: f64,
-        focal_length: f64,
+        hfov_rad: f64,
         image_width: u32,
-        viewport_width: f64,
         t_min: f64,
         t_max: f64,
         max_depth: u32,
@@ -45,12 +47,13 @@ impl<R: Rng> Camera<R> {
     ) -> Self {
         Self {
             aspect_ratio,
-            center,
+            look_from,
+            look_at,
+            vup,
             color_depth,
             decoding_gamma,
-            focal_length,
+            hfov_rad,
             image_width,
-            viewport_width,
             t_min,
             t_max,
             max_depth,
@@ -63,12 +66,19 @@ impl<R: Rng> Camera<R> {
         // Set additional image and camera parameters.
         // Ensure that image_height is at least 1.
         let image_height = if self.aspect_ratio > self.image_width as f64 { 1 } else { (self.image_width as f64 / self.aspect_ratio) as u32 };
-        let viewport_height = self.viewport_width / (self.image_width as f64 / image_height as f64);
 
-        let viewport_u = Vector3::new(self.viewport_width, 0.0, 0.0);
-        let viewport_v = Vector3::new(0.0, 0.0, -viewport_height);
-        let viewport_offset = Vector3::new(0.0, self.focal_length, 0.0);
-        let viewport_top_left = self.center + viewport_offset - (viewport_u + viewport_v) / 2.0;
+        let focal_length = (self.look_at - self.look_from).norm();
+        let viewport_width = 2.0 * focal_length * f64::tan(self.hfov_rad / 2.0);
+        let viewport_height = viewport_width / (self.image_width as f64 / image_height as f64);
+
+        // Form an orthonormal basis describing the orientation of the camera.
+        let w = (self.look_at - self.look_from).normalize();
+        let u = Vector3::cross(self.vup, w).normalize();
+        let v = w.cross(u);
+
+        let viewport_u = viewport_width * u;
+        let viewport_v = -viewport_height * v;
+        let viewport_top_left = self.look_from + focal_length * w - (viewport_u + viewport_v) / 2.0;
 
         let viewport_delta_u = viewport_u / (self.image_width as f64);
         let viewport_delta_v = viewport_v / (image_height as f64);
@@ -90,7 +100,7 @@ impl<R: Rng> Camera<R> {
                 for _ in 0..self.samples_per_pixel {
                     let disk_sample = self.sample_unit_disk_uniform();
                     let ray_offset = anti_aliasing_disk_r * Vector3::new(disk_sample.x(), 0.0, disk_sample.y());
-                    let mut ray = Ray::new(self.center, pixel_center - self.center + ray_offset);
+                    let mut ray = Ray::new(self.look_from, pixel_center - self.look_from + ray_offset);
                     let mut ray_attenuation = Vector3::new(1.0, 1.0, 1.0);
                     let mut ray_color = Vector3::from([0.0; 3]);
                     let mut depth = 0;
@@ -122,4 +132,8 @@ impl<R: Rng> Camera<R> {
         let rng_ref = &mut self.rng.borrow_mut();
         sample_unit_disk_uniform(rng_ref)
     }
+}
+
+pub fn vfov_to_hfov(vfov_rad: f64, aspect_ratio: f64) -> f64 {
+    2.0 * f64::atan(aspect_ratio * f64::tan(vfov_rad / 2.0))
 }
