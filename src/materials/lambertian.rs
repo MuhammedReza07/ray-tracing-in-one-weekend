@@ -30,8 +30,8 @@ impl<R: Rng> Material for Lambertian<R> {
         self.attenuation
     }
 
-    fn scatter(&self, r: Ray, t: f64, n: Vector3, _is_inside: bool) -> Ray {
+    fn scatter(&self, r: Ray, t: f64, n: Vector3, _is_inside: bool) -> Option<Ray> {
         let rng_ref = &mut self.rng.borrow_mut();
-        Ray::new(r.at(t), sample_unit_sphere_uniform(rng_ref) + n)
+        Some(Ray::new(r.at(t), sample_unit_sphere_uniform(rng_ref) + n))
     }
 }

@@ -27,7 +27,7 @@ pub struct Camera<R: Rng> {
     max_depth: u32,
     samples_per_pixel: u32,
     focus_distance: f64,
-    defocus_angle: f64,
+    defocus_angle_rad: f64,
     rng: Rc<RefCell<R>>
 }
 
@@ -46,7 +46,7 @@ impl<R: Rng> Camera<R> {
         max_depth: u32,
         samples_per_pixel: u32,
         focus_distance: f64,
-        defocus_angle: f64,
+        defocus_angle_rad: f64,
         rng: Rc<RefCell<R>>
     ) -> Self {
         Self {
@@ -63,7 +63,7 @@ impl<R: Rng> Camera<R> {
             max_depth,
             samples_per_pixel,
             focus_distance,     // In this case, focus distance = focal length = distance from look_from to image plane.
-            defocus_angle,
+            defocus_angle_rad,
             rng
         }
     }
@@ -93,7 +93,7 @@ impl<R: Rng> Camera<R> {
         // Radius of the disk used for anti-aliasing.
         let encoding_gamma = self.decoding_gamma.recip();
         let anti_aliasing_disk_r = f64::max(viewport_delta_u.norm(), viewport_delta_v.norm());
-        let defocus_radius = self.focus_distance * f64::tan(self.defocus_angle / 2.0);
+        let defocus_radius = self.focus_distance * f64::tan(self.defocus_angle_rad / 2.0);
 
         // Render.
         write_p3_header(self.image_width, image_height, self.color_depth);
@@ -117,7 +117,13 @@ impl<R: Rng> Camera<R> {
                         if let Some(intersection) = scene.intersect(ray, self.t_min, self.t_max) {
                             let object = scene.get(intersection.index);
                             ray_attenuation = Vector3::multiply_components(ray_attenuation, object.attenuation(ray, intersection.t));
-                            ray = object.scatter(ray, intersection.t);
+                            ray = match object.scatter(ray, intersection.t) {
+                                Some(r) => r,
+                                _ => {
+                                    ray_color = Vector3::from([0.0; 3]);
+                                    break;
+                                }
+                            };
                         } else {
                             let t: f64 = (ray.direction.normalize().z() + 1.0) / 2.0;
                             ray_color = Vector3::multiply_components(ray_attenuation, lerp(Vector3::from([1.0; 3]), Vector3::new(0.5, 0.7, 1.0), t));

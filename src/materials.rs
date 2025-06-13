@@ -15,9 +15,9 @@ impl Material for None {
         Vector3::new(1.0, 1.0, 1.0)
     }
 
-    fn scatter(&self, r: Ray, t: f64, _n: Vector3, _is_inside: bool) -> Ray {
+    fn scatter(&self, r: Ray, t: f64, _n: Vector3, _is_inside: bool) -> Option<Ray> {
         // Do not scatter incoming rays.
-        Ray::new(r.at(t), r.direction)
+        Some(Ray::new(r.at(t), r.direction))
     }
 }
 
@@ -32,7 +32,7 @@ pub trait Tangible: Intersectable + Orientable {
         self.material().attenuation(r, t, self.normal(r.at(t)), self.is_inside(r, t))
     }
 
-    fn scatter(&self, r: Ray, t: f64) -> Ray {
+    fn scatter(&self, r: Ray, t: f64) -> Option<Ray> {
         self.material().scatter(r, t, self.normal(r.at(t)), self.is_inside(r, t))
     }
 }
@@ -41,7 +41,7 @@ pub trait Tangible: Intersectable + Orientable {
 pub trait Material {
     fn attenuation(&self, r: Ray, t: f64, n: Vector3, is_inside: bool) -> Vector3;
 
-    fn scatter(&self, r: Ray, t: f64, n: Vector3, is_inside: bool) -> Ray;
+    fn scatter(&self, r: Ray, t: f64, n: Vector3, is_inside: bool) -> Option<Ray>;
 }
 
 /// Dielectric material that attenuates rays in accordance with Beer's law.

@@ -20,7 +20,7 @@ impl Material for Specular {
         self.attenuation
     }
 
-    fn scatter(&self, r: Ray, t: f64, n: Vector3, _is_inside: bool) -> Ray {
-        Ray::new(r.at(t), r.direction - 2.0 * Vector3::dot(r.direction, n) * n)
+    fn scatter(&self, r: Ray, t: f64, n: Vector3, _is_inside: bool) -> Option<Ray> {
+        Some(Ray::new(r.at(t), r.direction - 2.0 * Vector3::dot(r.direction, n) * n))
     }
 }

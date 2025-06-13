@@ -42,7 +42,7 @@ impl<R: Rng> Material for Dielectric<R> {
         Vector3::new(1.0, 1.0, 1.0)
     }
 
-    fn scatter(&self, r: Ray, t: f64, n: Vector3, is_inside: bool) -> Ray {
+    fn scatter(&self, r: Ray, t: f64, n: Vector3, is_inside: bool) -> Option<Ray> {
         let rng_ref = &mut self.rng.borrow_mut();
 
         // The relative refractive index must be inverted if the intersection occurred with
@@ -63,11 +63,11 @@ impl<R: Rng> Material for Dielectric<R> {
         // Scatter.
         let sin_theta_in = f64::sqrt(1.0 - cos_theta_in * cos_theta_in);
         if relative_refractive_index * sin_theta_in > 1.0 || rng_ref.random_bool(reflectance) {
-            return Ray::new(r.at(t), r.direction - 2.0 * Vector3::dot(r.direction, local_normal) * local_normal);
+            return Some(Ray::new(r.at(t), r.direction - 2.0 * Vector3::dot(r.direction, local_normal) * local_normal));
         } else {
             let r_out_direction_perp = relative_refractive_index * (direction_in + cos_theta_in * local_normal);
             let r_out_direction_parallel = -local_normal * f64::sqrt(1.0 - r_out_direction_perp.norm2());
-            return Ray::new(r.at(t), r_out_direction_perp + r_out_direction_parallel);
+            return Some(Ray::new(r.at(t), r_out_direction_perp + r_out_direction_parallel));
         }
     }
 }
