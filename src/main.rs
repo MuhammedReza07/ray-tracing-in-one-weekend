@@ -131,5 +131,5 @@ fn main() {
     }
 
     // Render.
-    camera.render(&mut scene);
+    camera.render(&scene);
 }
