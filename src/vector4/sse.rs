@@ -6,6 +6,7 @@ use std::{
     ops
 };
 
+#[repr(C)]
 #[derive(Clone, Copy)]
 pub union Vector4 {
     value: [f32; 4],
