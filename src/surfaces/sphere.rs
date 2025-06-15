@@ -34,7 +34,7 @@ impl<R: Rng + ?Sized> Intersectable for Sphere<R> {
     fn intersect(&self, r: Ray, t_min: f64, t_max: f64) -> Option<f64> {
         let oc = self.center - r.origin;
         let a = r.direction.norm2();
-        let b = -2.0 * Vector3::dot(r.direction, oc);
+        let b = -2.0 * r.direction.dot(oc);
         let c = oc.norm2() - self.radius * self.radius;
         let d = b * b - 4.0 * a * c;
 

@@ -34,7 +34,7 @@ impl<R: Rng + ?Sized> Material<R> for FuzzySpecular {
 
     fn scatter(&self, rng: &mut R, r: Ray, t: f64, n: Vector3, _is_inside: bool) -> Option<Ray> {
         // Rejection sampling for the win!
-        let direction_specular_normalized = (r.direction - 2.0 * Vector3::dot(r.direction, n) * n).normalize();
+        let direction_specular_normalized = (r.direction - 2.0 * r.direction.dot(n) * n).normalize();
         let mut direction: Vector3;
         for _ in 0..self.max_fuzzing_iterations {
             direction = direction_specular_normalized + self.fuzzing_radius * sample_unit_sphere_uniform(rng);

@@ -22,6 +22,6 @@ impl<R: Rng + ?Sized> Material<R> for Specular {
     }
 
     fn scatter(&self, _rng: &mut R, r: Ray, t: f64, n: Vector3, _is_inside: bool) -> Option<Ray> {
-        Some(Ray::new(r.at(t), r.direction - 2.0 * Vector3::dot(r.direction, n) * n))
+        Some(Ray::new(r.at(t), r.direction - 2.0 * r.direction.dot(n) * n))
     }
 }

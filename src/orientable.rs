@@ -11,7 +11,7 @@ pub trait Orientable {
     /// with `r` going out from the object, `false` otherwise.
     fn is_inside(&self, r: Ray, t: f64) -> bool {
         let p = r.at(t);
-        if Vector3::dot(r.direction, self.normal(p)) >= 0.0 {
+        if r.direction.dot(self.normal(p)) >= 0.0 {
             return true;
         }
         false

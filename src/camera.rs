@@ -82,7 +82,7 @@ impl Camera {
 
         // Form an orthonormal basis describing the orientation of the camera.
         let w = (self.look_at - self.look_from).normalize();
-        let u = Vector3::cross(self.vup, w).normalize();
+        let u = self.vup.cross(w).normalize();
         let v = w.cross(u);
 
         let viewport_u = viewport_width * u;
@@ -119,7 +119,7 @@ impl Camera {
                     while depth < self.max_depth {
                         if let Some(intersection) = scene.intersect(ray, self.t_min, self.t_max) {
                             let object = scene.get(intersection.index);
-                            ray_attenuation = Vector3::multiply_components(ray_attenuation, object.attenuation(rng, ray, intersection.t));
+                            ray_attenuation *= object.attenuation(rng, ray, intersection.t);
                             ray = match object.scatter(rng, ray, intersection.t) {
                                 Some(r) => r,
                                 _ => {
@@ -129,7 +129,7 @@ impl Camera {
                             };
                         } else {
                             let t: f64 = (ray.direction.normalize().z() + 1.0) / 2.0;
-                            ray_color = Vector3::multiply_components(ray_attenuation, lerp(Vector3::from([1.0; 3]), Vector3::new(0.5, 0.7, 1.0), t));
+                            ray_color = ray_attenuation * lerp(Vector3::from([1.0; 3]), Vector3::new(0.5, 0.7, 1.0), t);
                             break;
                         }
                         depth += 1;
@@ -162,7 +162,7 @@ impl Camera {
 
         // Form an orthonormal basis describing the orientation of the camera.
         let w = (self.look_at - self.look_from).normalize();
-        let u = Vector3::cross(self.vup, w).normalize();
+        let u = self.vup.cross(w).normalize();
         let v = w.cross(u);
 
         let viewport_u = viewport_width * u;
@@ -208,7 +208,7 @@ impl Camera {
                                 while depth < self.max_depth {
                                     if let Some(intersection) = scene.intersect(ray, self.t_min, self.t_max) {
                                         let object = scene.get(intersection.index);
-                                        ray_attenuation = Vector3::multiply_components(ray_attenuation, object.attenuation(&mut rng, ray, intersection.t));
+                                        ray_attenuation *= object.attenuation(&mut rng, ray, intersection.t);
                                         ray = match object.scatter(&mut rng, ray, intersection.t) {
                                             Some(r) => r,
                                             _ => {
@@ -218,7 +218,7 @@ impl Camera {
                                         };
                                     } else {
                                         let t: f64 = (ray.direction.normalize().z() + 1.0) / 2.0;
-                                        ray_color = Vector3::multiply_components(ray_attenuation, lerp(Vector3::from([1.0; 3]), Vector3::new(0.5, 0.7, 1.0), t));
+                                        ray_color = ray_attenuation * lerp(Vector3::from([1.0; 3]), Vector3::new(0.5, 0.7, 1.0), t);
                                         break;
                                     }
                                     depth += 1;

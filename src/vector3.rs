@@ -34,11 +34,11 @@ impl Vector3 {
         *self / self.norm()
     }
 
-    pub fn dot(self, rhs: Self) -> f64 {
+    pub fn dot(&self, rhs: Self) -> f64 {
         self.value[0] * rhs.value[0] + self.value[1] * rhs.value[1] + self.value[2] * rhs.value[2]
     }
 
-    pub fn cross(self, rhs: Self) -> Self {
+    pub fn cross(&self, rhs: Self) -> Self {
         Self {
             value: [
                 self.value[1] * rhs.value[2] - rhs.value[1] * self.value[2],
@@ -46,10 +46,6 @@ impl Vector3 {
                 self.value[0] * rhs.value[1] - rhs.value[0] * self.value[1]
             ]
         }
-    }
-
-    pub fn multiply_components(self, rhs: Self) -> Self {
-        Self { value: [self.value[0] * rhs.value[0], self.value[1] * rhs.value[1], self.value[2] * rhs.value[2]] }
     }
 }
 
@@ -91,6 +87,14 @@ impl ops::Mul<Vector3> for f64 {
     }
 }
 
+impl ops::Mul<Vector3> for Vector3 {
+    type Output = Self;
+
+    fn mul(self, rhs: Vector3) -> Self::Output {
+        Self { value: [self.value[0] * rhs.value[0], self.value[1] * rhs.value[1], self.value[2] * rhs.value[2]] }
+    }
+}
+
 impl ops::Div<f64> for Vector3 {
     type Output = Self;
 
@@ -121,6 +125,12 @@ impl ops::SubAssign for Vector3 {
 
 impl ops::MulAssign<f64> for Vector3 {
     fn mul_assign(&mut self, rhs: f64) {
+        *self = *self * rhs;
+    }
+}
+
+impl ops::MulAssign<Vector3> for Vector3 {
+    fn mul_assign(&mut self, rhs: Vector3) {
         *self = *self * rhs;
     }
 }
@@ -324,12 +334,12 @@ mod tests {
         let v1 = Vector3::new(0.0, 0.0, 0.0);
         let v2 = Vector3::new(1.0, 1.0, 1.0);
         let v3 = Vector3::new(1.0, 2.0, 3.0);
-        assert_eq!(Vector3::dot(v1, v1), 0.0);
-        assert_eq!(Vector3::dot(v2, v2), v2.norm2());
-        assert_eq!(Vector3::dot(v3, v3), v3.norm2());
-        assert_eq!(Vector3::dot(v1, v3), 0.0);
-        assert_eq!(Vector3::dot(v2, v3), Vector3::dot(v3, v2));
-        assert_eq!(Vector3::dot(v2, v3), 1.0 * 1.0 + 1.0 * 2.0 + 1.0 * 3.0);
+        assert_eq!(v1.dot(v1), 0.0);
+        assert_eq!(v2.dot(v2), v2.norm2());
+        assert_eq!(v3.dot(v3), v3.norm2());
+        assert_eq!(v1.dot(v3), 0.0);
+        assert_eq!(v2.dot(v3), v3.dot(v2));
+        assert_eq!(v2.dot(v3), 1.0 * 1.0 + 1.0 * 2.0 + 1.0 * 3.0);
     }
 
     #[test]
@@ -337,15 +347,15 @@ mod tests {
         let v1 = Vector3::new(1.0, 0.0, 0.0);
         let v2 = Vector3::new(0.0, 1.0, 0.0);
         let v3 = Vector3::new(0.0, 0.0, 1.0);
-        assert_eq!(Vector3::cross(v1, v2), v3);
-        assert_eq!(Vector3::cross(v2, v3), v1);
+        assert_eq!(v1.cross(v2), v3);
+        assert_eq!(v2.cross(v3), v1);
         assert_eq!(v3.cross(v1), v2);
     }
 
     #[test]
     fn test_multiply_components() {
-        assert_eq!(Vector3::from([0.0; 3]), Vector3::multiply_components(Vector3::from([1.0, 2.0, 3.0]), Vector3::from([0.0; 3])));
-        assert_eq!(Vector3::multiply_components(Vector3::new(1.0, 2.0, 3.0), Vector3::new(1.0, 2.0, 3.0)), Vector3::new(1.0 * 1.0, 2.0 * 2.0, 3.0 * 3.0));
-        assert_eq!(Vector3::multiply_components(Vector3::new(1.0, 2.0, 3.0), Vector3::from([3.0; 3])), 3.0 * Vector3::new(1.0, 2.0, 3.0));
+        assert_eq!(Vector3::from([0.0; 3]), Vector3::from([1.0, 2.0, 3.0]) * Vector3::from([0.0; 3]));
+        assert_eq!(Vector3::new(1.0, 2.0, 3.0) * Vector3::new(1.0, 2.0, 3.0), Vector3::new(1.0 * 1.0, 2.0 * 2.0, 3.0 * 3.0));
+        assert_eq!(Vector3::new(1.0, 2.0, 3.0) * Vector3::from([3.0; 3]), 3.0 * Vector3::new(1.0, 2.0, 3.0));
     }
 }

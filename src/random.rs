@@ -19,7 +19,7 @@ pub fn sample_unit_sphere_uniform<R: Rng + ?Sized>(rng: &mut R) -> Vector3 {
 /// Generates a random point on the hemisphere in the direction of n.
 pub fn sample_unit_hemisphere_uniform<R: Rng + ?Sized>(rng: &mut R, n: Vector3) -> Vector3 {
     let sample = sample_unit_sphere_uniform(rng);
-    if Vector3::dot(sample, n) >= 0.0 {
+    if sample.dot(n) >= 0.0 {
         return sample;
     } else {
         return -sample;
