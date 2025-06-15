@@ -3,6 +3,7 @@ use crate::{
     ray::Ray,
     vector3::Vector3
 };
+use rand::Rng;
 
 #[derive(Clone, Copy, Debug, PartialEq)]
 pub struct Specular {
@@ -15,12 +16,12 @@ impl Specular {
     }
 }
 
-impl Material for Specular {
-    fn attenuation(&self, _r: Ray, _t: f64, _n: Vector3, _is_inside: bool) -> Vector3 {
+impl<R: Rng + ?Sized> Material<R> for Specular {
+    fn attenuation(&self, _rng: &mut R, _r: Ray, _t: f64, _n: Vector3, _is_inside: bool) -> Vector3 {
         self.attenuation
     }
 
-    fn scatter(&self, r: Ray, t: f64, n: Vector3, _is_inside: bool) -> Option<Ray> {
+    fn scatter(&self, _rng: &mut R, r: Ray, t: f64, n: Vector3, _is_inside: bool) -> Option<Ray> {
         Some(Ray::new(r.at(t), r.direction - 2.0 * Vector3::dot(r.direction, n) * n))
     }
 }

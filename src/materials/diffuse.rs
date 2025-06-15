@@ -5,33 +5,26 @@ use crate::{
     vector3::Vector3,
 };
 use rand::Rng;
-use std::{
-    cell::RefCell, 
-    rc::Rc
-};
 
-#[derive(Clone, Debug, PartialEq)]
-pub struct Diffuse<R: Rng> {
+#[derive(Clone, Copy, Debug, PartialEq)]
+pub struct Diffuse {
     attenuation: Vector3,
-    rng: Rc<RefCell<R>>
 }
 
-impl<R: Rng> Diffuse<R> {
+impl Diffuse {
     pub fn new(
         attenuation: Vector3,
-        rng: Rc<RefCell<R>>
     ) -> Self {
-        Self { attenuation, rng }
+        Self { attenuation }
     }
 }
 
-impl<R: Rng> Material for Diffuse<R> {
-    fn attenuation(&self, _r: Ray, _t: f64, _n: Vector3, _is_inside: bool) -> Vector3 {
+impl<R: Rng + ?Sized> Material<R> for Diffuse {
+    fn attenuation(&self, _rng: &mut R, _r: Ray, _t: f64, _n: Vector3, _is_inside: bool) -> Vector3 {
         self.attenuation
     }
 
-    fn scatter(&self, r: Ray, t: f64, n: Vector3, _is_inside: bool) -> Option<Ray> {
-        let rng_ref = &mut self.rng.borrow_mut();
-        Some(Ray::new(r.at(t), sample_unit_hemisphere_uniform(rng_ref, n)))
+    fn scatter(&self, rng: &mut R, r: Ray, t: f64, n: Vector3, _is_inside: bool) -> Option<Ray> {
+        Some(Ray::new(r.at(t), sample_unit_hemisphere_uniform(rng, n)))
     }
 }

@@ -4,34 +4,27 @@ use crate::{
     vector3::Vector3
 };
 use rand::Rng;
-use std::{
-    cell::RefCell, 
-    rc::Rc
-};
 
-#[derive(Clone, Debug, PartialEq)]
-pub struct Dielectric<R: Rng> {
+#[derive(Clone, Copy, Debug, PartialEq)]
+pub struct Dielectric {
     absorbance: Vector3,
     relative_refractive_index: f64,     // The object's refractive index / the surroundings' refractive index.
-    rng: Rc<RefCell<R>>
 }
 
-impl<R: Rng> Dielectric<R> {
+impl Dielectric {
     pub fn new(
         absorbance: Vector3,
         relative_refractive_index: f64,
-        rng: Rc<RefCell<R>>
     ) -> Self {
         Self {
             absorbance,
             relative_refractive_index,
-            rng
         }
     }
 }
 
-impl<R: Rng> Material for Dielectric<R> {
-    fn attenuation(&self, r: Ray, t: f64, _n: Vector3, is_inside: bool) -> Vector3 {
+impl<R: Rng + ?Sized> Material<R> for Dielectric {
+    fn attenuation(&self, _rng: &mut R, r: Ray, t: f64, _n: Vector3, is_inside: bool) -> Vector3 {
         if is_inside {
             return Vector3::new(
                 f64::exp(-self.absorbance.x() * r.length(t)),
@@ -42,9 +35,7 @@ impl<R: Rng> Material for Dielectric<R> {
         Vector3::new(1.0, 1.0, 1.0)
     }
 
-    fn scatter(&self, r: Ray, t: f64, n: Vector3, is_inside: bool) -> Option<Ray> {
-        let rng_ref = &mut self.rng.borrow_mut();
-
+    fn scatter(&self, rng: &mut R, r: Ray, t: f64, n: Vector3, is_inside: bool) -> Option<Ray> {
         // The relative refractive index must be inverted if the intersection occurred with
         // the ray going into the object.
         let (relative_refractive_index, normal_adjustment) = match is_inside {
@@ -62,7 +53,7 @@ impl<R: Rng> Material for Dielectric<R> {
 
         // Scatter.
         let sin_theta_in = f64::sqrt(1.0 - cos_theta_in * cos_theta_in);
-        if relative_refractive_index * sin_theta_in > 1.0 || rng_ref.random_bool(reflectance) {
+        if relative_refractive_index * sin_theta_in > 1.0 || rng.random_bool(reflectance) {
             return Some(Ray::new(r.at(t), r.direction - 2.0 * Vector3::dot(r.direction, local_normal) * local_normal));
         } else {
             let r_out_direction_perp = relative_refractive_index * (direction_in + cos_theta_in * local_normal);
