@@ -87,11 +87,11 @@ impl Vector4 {
 #[cfg(not(target_feature = "sse4.1"))]
 impl Vector4 {
     pub fn norm2(&self) -> f32 {
-        unsafe { self.value[0] * self.value[0] + self.value[1] * self.value[1] + self.value[2] * self.value[2] + self.value[3] * self.value[3] }
+        self.dot(*self)
     }
 
     pub fn norm(&self) -> f32 {
-        unsafe { f32::sqrt(self.value[0] * self.value[0] + self.value[1] * self.value[1] + self.value[2] * self.value[2] + self.value[3] * self.value[3]) }
+        f32::sqrt(self.dot(*self))
     }
 
     pub fn normalize(&self) -> Self {
@@ -99,7 +99,16 @@ impl Vector4 {
     }
 
     pub fn dot(&self, rhs: Self) -> f32 {
-        unsafe { self.value[0] * rhs.value[0] + self.value[1] * rhs.value[1] + self.value[2] * rhs.value[2] + self.value[3] * rhs.value[3] }
+        // This solution was adapted from Peter Cordes' answer on StackOverflow.
+        // URL: https://stackoverflow.com/questions/6996764/fastest-way-to-do-horizontal-sse-vector-sum-or-other-reduction.
+        unsafe {
+            let product_vec = _mm_mul_ps(self.simd, rhs.simd);
+            let mut shuf = _mm_shuffle_ps::<0b10110001>(product_vec, product_vec);
+            let mut sum_vec = _mm_add_ps(product_vec, shuf);
+            shuf = _mm_movehl_ps(shuf, sum_vec);
+            sum_vec = _mm_add_ss(sum_vec, shuf);
+            _mm_cvtss_f32(sum_vec)
+        }
     }
 }
 
