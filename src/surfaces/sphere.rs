@@ -5,28 +5,30 @@ use crate::{
     ray::Ray,
     vector3::Vector3
 };
+use rand::Rng;
 use std::{
     f64,
-    rc::Rc
+    sync::Arc
 };
 
-pub struct Sphere {
+#[derive(Clone)]
+pub struct Sphere<R: Rng + ?Sized> {
     pub center: Vector3,
     pub radius: f64,
-    material: Rc<dyn Material>
+    material: Arc<dyn Material<R> + Send + Sync>
 }
 
-impl Sphere {
+impl<R: Rng + ?Sized> Sphere<R> {
     pub fn new(
         center: Vector3, 
         radius: f64,
-        material: Rc<dyn Material>
+        material: Arc<dyn Material<R> + Send + Sync>
     ) -> Self {
         Self { center, radius, material }
     }
 }
 
-impl Intersectable for Sphere {
+impl<R: Rng + ?Sized> Intersectable for Sphere<R> {
     // Intersection computed using the quadratic equation (C - P) * (C - P) = R^2, where
     // C is the centre of the sphere, P = Q + dt is a point on the ray, and R is the radius of the sphere.
     fn intersect(&self, r: Ray, t_min: f64, t_max: f64) -> Option<f64> {
@@ -53,14 +55,14 @@ impl Intersectable for Sphere {
     }
 }
 
-impl Orientable for Sphere {
+impl<R: Rng + ?Sized> Orientable for Sphere<R> {
     fn normal(&self, p: Vector3) -> Vector3 {
         (p - self.center) / self.radius
     }
 }
 
-impl Tangible for Sphere {
-    fn material(&self) -> &Rc<dyn Material> {
+impl<R: Rng + ?Sized> Tangible<R> for Sphere<R> {
+    fn material(&self) -> &Arc<dyn Material<R> + Send + Sync> {
         &self.material
     }
 }

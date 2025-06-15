@@ -2,6 +2,7 @@ use crate::{
     materials::Tangible,
     ray::Ray
 };
+use rand::Rng;
 use std::f64;
 
 pub struct Intersection {
@@ -9,20 +10,20 @@ pub struct Intersection {
     pub index: usize
 }
 
-pub struct RenderableList {
-    elements: Vec<Box<dyn Tangible>>
+pub struct RenderableList<R: Rng + ?Sized> {
+    elements: Vec<Box<dyn Tangible<R> + Send + Sync>>
 }
 
-impl RenderableList {
+impl<R: Rng + ?Sized> RenderableList<R> {
     pub fn new() -> Self {
         Self { elements: Vec::new() }
     }
 
-    pub fn get(&self, index: usize) -> &Box<dyn Tangible> {
+    pub fn get(&self, index: usize) -> &Box<dyn Tangible<R> + Send + Sync> {
         &self.elements[index]
     }
 
-    pub fn push(&mut self, element: Box<dyn Tangible>) {
+    pub fn push(&mut self, element: Box<dyn Tangible<R> + Send + Sync>) {
         self.elements.push(element);
     }
 
