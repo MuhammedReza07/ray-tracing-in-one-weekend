@@ -1,0 +1,29 @@
+Output of `time cargo run` for the final image of Ray Tracing in One Weekend with 16 samples per pixel.
+
+No concurrency (with additional IO)
+real    19m29,230s
+user    19m17,328s
+sys     0m5,682s
+
+Multithreading (8 threads)
+real    7m28,250s
+user    25m15,926s
+sys     0m10,107s
+
+Multithreading (4 threads, mutex locking for each row write)
+real    8m30,195s
+user    26m2,573s
+sys     0m12,172s
+
+real    7m31,962s
+user    25m24,773s
+sys     0m10,462s
+
+Multithreading (4 threads, mutex locking for individual pixel writes)
+real    10m15,111s
+user    27m27,206s
+sys     0m14,842s
+
+real    9m2,984s
+user    26m14,868s
+sys     0m11,777s
