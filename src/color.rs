@@ -19,11 +19,11 @@ impl Image {
         color_depth: usize,
         encoding_gamma: f64,
     ) -> Self {
-        let black = Vector3::new(0.0, 0.0, 0.0);
+        let zero_vec = Vector3::new(0.0, 0.0, 0.0);
         let mut pixels = Vec::new();
         pixels.reserve_exact(width * height);
         for _ in 0..width * height {
-            pixels.push(black);
+            pixels.push(zero_vec);
         }
         Self {
             width,
@@ -38,7 +38,7 @@ impl Image {
         self.pixels[i * self.width + j] = value;
     }
 
-    pub fn set_row(&mut self, values: Vec<Vector3>, i: usize) {
+    pub fn set_row(&mut self, values: &Vec<Vector3>, i: usize) {
         for j in 0..self.width {
             self.pixels[i * self.width + j] = values[j];
         }
