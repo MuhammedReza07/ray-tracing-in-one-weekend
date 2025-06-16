@@ -170,8 +170,7 @@ impl Camera {
                     let mut i = t;
                     // Initialise scan line buffer.
                     let zero_vec = Vector3::new(0.0, 0.0, 0.0);
-                    let mut scan_line = Vec::<Vector3>::new();
-                    scan_line.reserve(self.image_width);
+                    let mut scan_line = Vec::with_capacity(self.image_width);
                     for _ in 0..self.image_width {
                         scan_line.push(zero_vec);
                     }

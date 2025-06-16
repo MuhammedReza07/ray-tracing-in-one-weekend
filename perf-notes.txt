@@ -1,5 +1,10 @@
 Output of `time cargo run` for the final image of Ray Tracing in One Weekend with 16 samples per pixel.
 
+Machine specifications
+OS: Release Linux Mint 22 Wilma 64-bit
+CPU: Intel® Celeron(R) N4120 CPU @ 1.10GHz (4 cores)
+RAM: 7,3 GiB
+
 No concurrency (with additional IO)
 real    19m29,230s
 user    19m17,328s

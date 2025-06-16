@@ -20,8 +20,7 @@ impl Image {
         encoding_gamma: f64,
     ) -> Self {
         let zero_vec = Vector3::new(0.0, 0.0, 0.0);
-        let mut pixels = Vec::new();
-        pixels.reserve_exact(width * height);
+        let mut pixels = Vec::with_capacity(width * height);
         for _ in 0..width * height {
             pixels.push(zero_vec);
         }
