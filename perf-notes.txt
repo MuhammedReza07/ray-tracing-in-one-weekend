@@ -58,3 +58,21 @@ sys     0m5,594s
 real    3m6,183s
 user    11m20,226s
 sys     0m5,789s
+
+(opt-level=1)
+real    3m28,151s
+user    11m57,466s
+sys     0m7,754s
+
+real    3m22,192s
+user    11m45,569s
+sys     0m6,234s
+
+(opt-level=2)
+real    3m49,569s
+user    11m55,736s
+sys     0m6,509s
+
+real    3m14,013s
+user    11m47,788s
+sys     0m7,506s
