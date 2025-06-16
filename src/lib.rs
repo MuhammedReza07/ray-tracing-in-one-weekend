@@ -29,7 +29,7 @@ pub mod surfaces;
 /// Linear algebra functions for vectors in 3-dimensional Euclidean space (i.e. `R^3`).
 pub mod vector3;
 
-/// The functions in the `vector3` module, now using SIMD via the x86(_64) SIMD extensions provided in SSE(<=4.1).
+/// The functions in the `vector3` module, now using SIMD via the x86/x86_64 SIMD extensions provided in SSE(<=4.1).
 /// 
 /// Note that unlike `vector3::Vector3`, each component of the vectors in this library are `f32`, rather than `f64`.
 /// Also, there is a fourth component, `w`, which is why the name includes `vector4` instead of `vector3`.
