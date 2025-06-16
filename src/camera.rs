@@ -123,7 +123,7 @@ impl Camera {
     }
 
     /// Each thread has its own RNG initialised using `SeedableRng::from_os_rng()`.
-    pub fn render_concurrent<R: Rng + SeedableRng + ?Sized + 'static>(
+    pub fn render_concurrent<R: Rng + SeedableRng + 'static>(
         self, 
         scene: Arc<RenderableList<R>>, 
         thread_count: usize
@@ -223,7 +223,7 @@ impl Camera {
                 return ray_attenuation * lerp(Vector4::new(1.0, 1.0, 1.0, 0.0), Vector4::new(0.5, 0.7, 1.0, 0.0), t);
             }
         }
-        return Vector4::new(0.0, 0.0, 0.0, 0.0)
+        Vector4::new(0.0, 0.0, 0.0, 0.0)
     }
 }
 

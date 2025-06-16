@@ -36,7 +36,7 @@ impl Image {
         self.pixels[i * self.width + j] = value;
     }
 
-    pub fn set_row(&mut self, values: &Vec<Vector4>, i: usize) {
+    pub fn set_row(&mut self, values: &[Vector4], i: usize) {
         for j in 0..self.width {
             self.pixels[i * self.width + j] = values[j];
         }

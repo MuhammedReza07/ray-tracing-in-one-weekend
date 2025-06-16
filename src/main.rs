@@ -5,12 +5,9 @@ use ray_tracing_in_one_weekend::{
         vfov_to_hfov
     },
     materials::{
-        self,
         dielectric::Dielectric,
-        diffuse::Diffuse,
         fuzzy_specular::FuzzySpecular,
         lambertian::Lambertian,
-        specular::Specular
     },
     renderable_list::RenderableList,
     surfaces::sphere::Sphere, 
@@ -27,7 +24,7 @@ const ASPECT_RATIO: f32 = 16.0 / 9.0;
 const COLOR_DEPTH: usize = 255;
 const DECODING_GAMMA: f32 = 2.2;
 const VFOV_DEG: f32 = 20.0;
-const HFOV_DEG: f32 = 90.0;
+// const HFOV_DEG: f32 = 90.0;
 const IMAGE_WIDTH: usize = 1200;
 // const IMAGE_WIDTH: usize = 800;
 const T_MIN: f32 = 0.001;

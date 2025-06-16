@@ -18,8 +18,8 @@ impl<R: Rng + ?Sized> RenderableList<R> {
         Self { elements: Vec::new() }
     }
 
-    pub fn get(&self, index: usize) -> &Box<dyn Tangible<R> + Send + Sync> {
-        &self.elements[index]
+    pub fn get(&self, index: usize) -> &(dyn Tangible<R> + Send + Sync) {
+        &*self.elements[index]
     }
 
     pub fn push(&mut self, element: Box<dyn Tangible<R> + Send + Sync>) {
@@ -42,7 +42,7 @@ impl<R: Rng + ?Sized> RenderableList<R> {
                 continue;
             }
         }
-        // intersection_t should never be f32::INFINITY.
+        // intersection_t should never be f64::INFINITY.
         match intersection_t.is_finite() {
             true => Some(Intersection { t: intersection_t, index: intersection_index }),
             _ => None

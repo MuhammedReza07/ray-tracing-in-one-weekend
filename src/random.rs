@@ -20,9 +20,9 @@ pub fn sample_unit_sphere_uniform<R: Rng + ?Sized>(rng: &mut R) -> Vector4 {
 pub fn sample_unit_hemisphere_uniform<R: Rng + ?Sized>(rng: &mut R, n: Vector4) -> Vector4 {
     let sample = sample_unit_sphere_uniform(rng);
     if sample.dot(n) >= 0.0 {
-        return sample;
+        sample
     } else {
-        return -sample;
+        -sample
     }
 }
 

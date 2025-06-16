@@ -36,17 +36,17 @@ impl<R: Rng + ?Sized> Intersectable for Sphere<R> {
         let d = b * b - 4.0 * a * c;
 
         if d < 0.0 {
-            return None;
+            None
         } else {
             // -b - sqrt(d) <= -b + sqrt(d).
             let t_1 = (-b - f32::sqrt(d)) / (2.0 * a);
             let t_2 = (-b + f32::sqrt(d)) / (2.0 * a);
             if t_1 >= t_min && t_max >= t_1 {
-                return Some(t_1);
+                Some(t_1)
             } else if t_2 >= t_min && t_max >= t_2 {
-                return Some(t_2);
+                Some(t_2)
             } else {
-                return None;
+                None
             }
         }
     }

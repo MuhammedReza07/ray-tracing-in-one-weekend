@@ -55,11 +55,11 @@ impl<R: Rng + ?Sized> Material<R> for Dielectric {
         // Scatter.
         let sin_theta_in = f32::sqrt(1.0 - cos_theta_in * cos_theta_in);
         if relative_refractive_index * sin_theta_in > 1.0 || rng.random_bool(reflectance as f64) {
-            return Some(Ray::new(r.at(t), r.direction - 2.0 * r.direction.dot(local_normal) * local_normal));
+            Some(Ray::new(r.at(t), r.direction - 2.0 * r.direction.dot(local_normal) * local_normal))
         } else {
             let r_out_direction_perp = relative_refractive_index * (direction_in + cos_theta_in * local_normal);
             let r_out_direction_parallel = -local_normal * f32::sqrt(1.0 - r_out_direction_perp.norm2());
-            return Some(Ray::new(r.at(t), r_out_direction_perp + r_out_direction_parallel));
+            Some(Ray::new(r.at(t), r_out_direction_perp + r_out_direction_parallel))
         }
     }
 }

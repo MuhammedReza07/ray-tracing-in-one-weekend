@@ -33,6 +33,7 @@ impl Vector4 {
         unsafe { self.value[3] }
     }
     
+    #[allow(unreachable_code)]
     pub fn norm2(&self) -> f32 {
         #[cfg(all(target_arch = "x86_64", target_feature = "sse4.1"))]
         unsafe { return self.simd_norm2_sse41() }
@@ -41,6 +42,7 @@ impl Vector4 {
         unsafe { self.value[0] * self.value[0] + self.value[1] * self.value[1] + self.value[2] * self.value[2] + self.value[3] * self.value[3] }
     }
 
+    #[allow(unreachable_code)]
     pub fn norm(&self) -> f32 {
         #[cfg(all(target_arch = "x86_64", target_feature = "sse4.1"))]
         unsafe { return self.simd_norm_sse41() }
@@ -49,6 +51,7 @@ impl Vector4 {
         unsafe { f32::sqrt(self.value[0] * self.value[0] + self.value[1] * self.value[1] + self.value[2] * self.value[2] + self.value[3] * self.value[3]) }
     }
 
+    #[allow(unreachable_code)]
     pub fn normalize(&self) -> Self {
         #[cfg(all(target_arch = "x86_64", target_feature = "sse4.1"))]
         unsafe { return self.simd_normalize_sse41() }
@@ -57,6 +60,7 @@ impl Vector4 {
         *self / self.norm()
     }
 
+    #[allow(unreachable_code)]
     pub fn dot(&self, rhs: Self) -> f32 {
         #[cfg(all(target_arch = "x86_64", target_feature = "sse4.1"))]
         unsafe { return self.simd_dot_sse41(rhs) }
@@ -66,6 +70,7 @@ impl Vector4 {
     }
 
     /// Ignores the `w` component when computing the cross product.
+    #[allow(unreachable_code)]
     pub fn cross(&self, rhs: Self) -> Self {
         #[cfg(all(any(target_arch = "x86", target_arch = "x86_64"), target_feature = "sse"))]
         unsafe { return self.simd_cross(rhs) }
@@ -203,6 +208,7 @@ impl fmt::Debug for Vector4 {
 }
 
 impl PartialEq for Vector4 {
+    #[allow(unreachable_code)]
     fn eq(&self, other: &Self) -> bool {
         #[cfg(all(any(target_arch = "x86", target_arch = "x86_64"), target_feature = "sse"))]
         unsafe { return self.simd_eq(other) }
@@ -213,6 +219,7 @@ impl PartialEq for Vector4 {
 impl ops::Add for Vector4 {
     type Output = Self;
 
+    #[allow(unreachable_code)]
     fn add(self, rhs: Self) -> Self::Output {
         #[cfg(all(any(target_arch = "x86", target_arch = "x86_64"), target_feature = "sse"))]
         unsafe { return self.simd_add(rhs) }
@@ -223,6 +230,7 @@ impl ops::Add for Vector4 {
 impl ops::Sub for Vector4 {
     type Output = Self;
 
+    #[allow(unreachable_code)]
     fn sub(self, rhs: Self) -> Self::Output {
         #[cfg(all(any(target_arch = "x86", target_arch = "x86_64"), target_feature = "sse"))]
         unsafe { return self.simd_sub(rhs) }
@@ -233,6 +241,7 @@ impl ops::Sub for Vector4 {
 impl ops::Mul<f32> for Vector4 {
     type Output = Self;
 
+    #[allow(unreachable_code)]
     fn mul(self, rhs: f32) -> Self::Output {
         #[cfg(all(any(target_arch = "x86", target_arch = "x86_64"), target_feature = "sse"))]
         unsafe { return self.simd_mul_scalar(rhs) }
@@ -243,6 +252,7 @@ impl ops::Mul<f32> for Vector4 {
 impl ops::Mul<Vector4> for f32 {
     type Output = Vector4;
 
+    #[allow(unreachable_code)]
     fn mul(self, rhs: Vector4) -> Self::Output {
         #[cfg(all(any(target_arch = "x86", target_arch = "x86_64"), target_feature = "sse"))]
         unsafe { return rhs.simd_mul_scalar(self) }
@@ -253,6 +263,7 @@ impl ops::Mul<Vector4> for f32 {
 impl ops::Mul<Vector4> for Vector4 {
     type Output = Self;
 
+    #[allow(unreachable_code)]
     fn mul(self, rhs: Vector4) -> Self::Output {
         #[cfg(all(any(target_arch = "x86", target_arch = "x86_64"), target_feature = "sse"))]
         unsafe { return self.simd_mul_vec(rhs) }
@@ -263,6 +274,7 @@ impl ops::Mul<Vector4> for Vector4 {
 impl ops::Div<f32> for Vector4 {
     type Output = Self;
 
+    #[allow(unreachable_code)]
     fn div(self, rhs: f32) -> Self::Output {
         #[cfg(all(any(target_arch = "x86", target_arch = "x86_64"), target_feature = "sse"))]
         unsafe { return self.simd_div(rhs) }
