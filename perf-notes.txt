@@ -45,3 +45,16 @@ sys     0m6,301s
 real    3m46,871s
 user    13m29,051s
 sys     0m5,473s
+
+Multithreading (4 threads, mutex locking for each row write), compiler optimisations (-O flag) with target-cpu=native, SIMD (SSE4.1) for vector operations
+real    3m23,803s
+user    11m35,097s
+sys     0m6,126s
+
+real    3m9,188s
+user    11m25,610s
+sys     0m5,594s
+
+real    3m6,183s
+user    11m20,226s
+sys     0m5,789s

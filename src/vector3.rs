@@ -143,7 +143,6 @@ impl ops::DivAssign<f64> for Vector3 {
 
 #[cfg(test)]
 mod tests {
-    use std::f64;
     use super::*;
 
     #[test]

@@ -1,7 +1,6 @@
 use std::{
     arch::x86_64::*,
     convert,
-    f32,
     fmt,
     ops
 };
@@ -312,7 +311,6 @@ impl ops::DivAssign<f32> for Vector4 {
 
 #[cfg(test)]
 mod tests {
-    use std::f32;
     use super::*;
 
     #[test]

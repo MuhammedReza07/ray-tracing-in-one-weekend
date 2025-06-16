@@ -1,20 +1,20 @@
 use crate::{
     materials::Material,
     ray::Ray,
-    vector3::Vector3
+    vector4::Vector4
 };
 use rand::Rng;
 
 #[derive(Clone, Copy, Debug, PartialEq)]
 pub struct Dielectric {
-    absorbance: Vector3,
-    relative_refractive_index: f64,     // The object's refractive index / the surroundings' refractive index.
+    absorbance: Vector4,
+    relative_refractive_index: f32,     // The object's refractive index / the surroundings' refractive index.
 }
 
 impl Dielectric {
     pub fn new(
-        absorbance: Vector3,
-        relative_refractive_index: f64,
+        absorbance: Vector4,
+        relative_refractive_index: f32,
     ) -> Self {
         Self {
             absorbance,
@@ -24,18 +24,19 @@ impl Dielectric {
 }
 
 impl<R: Rng + ?Sized> Material<R> for Dielectric {
-    fn attenuation(&self, _rng: &mut R, r: Ray, t: f64, _n: Vector3, is_inside: bool) -> Vector3 {
+    fn attenuation(&self, _rng: &mut R, r: Ray, t: f32, _n: Vector4, is_inside: bool) -> Vector4 {
         if is_inside {
-            return Vector3::new(
-                f64::exp(-self.absorbance.x() * r.length(t)),
-                f64::exp(-self.absorbance.y() * r.length(t)),
-                f64::exp(-self.absorbance.z() * r.length(t))
+            return Vector4::new(
+                f32::exp(-self.absorbance.x() * r.length(t)),
+                f32::exp(-self.absorbance.y() * r.length(t)),
+                f32::exp(-self.absorbance.z() * r.length(t)),
+                0.0
             );
         }
-        Vector3::new(1.0, 1.0, 1.0)
+        Vector4::new(1.0, 1.0, 1.0, 0.0)
     }
 
-    fn scatter(&self, rng: &mut R, r: Ray, t: f64, n: Vector3, is_inside: bool) -> Option<Ray> {
+    fn scatter(&self, rng: &mut R, r: Ray, t: f32, n: Vector4, is_inside: bool) -> Option<Ray> {
         // The relative refractive index must be inverted if the intersection occurred with
         // the ray going into the object.
         let (relative_refractive_index, normal_adjustment) = match is_inside {
@@ -52,12 +53,12 @@ impl<R: Rng + ?Sized> Material<R> for Dielectric {
         let reflectance = r_0 + (1.0 - r_0) * (1.0 - cos_theta_in) * (1.0 - cos_theta_in) * (1.0 - cos_theta_in) * (1.0 - cos_theta_in) * (1.0 - cos_theta_in);
 
         // Scatter.
-        let sin_theta_in = f64::sqrt(1.0 - cos_theta_in * cos_theta_in);
-        if relative_refractive_index * sin_theta_in > 1.0 || rng.random_bool(reflectance) {
+        let sin_theta_in = f32::sqrt(1.0 - cos_theta_in * cos_theta_in);
+        if relative_refractive_index * sin_theta_in > 1.0 || rng.random_bool(reflectance as f64) {
             return Some(Ray::new(r.at(t), r.direction - 2.0 * r.direction.dot(local_normal) * local_normal));
         } else {
             let r_out_direction_perp = relative_refractive_index * (direction_in + cos_theta_in * local_normal);
-            let r_out_direction_parallel = -local_normal * f64::sqrt(1.0 - r_out_direction_perp.norm2());
+            let r_out_direction_parallel = -local_normal * f32::sqrt(1.0 - r_out_direction_perp.norm2());
             return Some(Ray::new(r.at(t), r_out_direction_perp + r_out_direction_parallel));
         }
     }
