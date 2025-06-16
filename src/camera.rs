@@ -112,32 +112,11 @@ impl Camera {
                     let ray_origin_offset = defocus_radius * (defocus_disk_sample.x() * u + defocus_disk_sample.y() * v);
                     let ray_direction_offset = anti_aliasing_radius * Vector3::new(anti_aliasing_disk_sample.x(), 0.0, anti_aliasing_disk_sample.y());
                     let ray_origin = self.look_from + ray_origin_offset;
-                    let mut ray = Ray::new(ray_origin, viewport_ij + ray_direction_offset - ray_origin);
-                    let mut ray_attenuation = Vector3::new(1.0, 1.0, 1.0);
-                    let mut ray_color = Vector3::from([0.0; 3]);
-                    let mut depth = 0;
-                    while depth < self.max_depth {
-                        if let Some(intersection) = scene.intersect(ray, self.t_min, self.t_max) {
-                            let object = scene.get(intersection.index);
-                            ray_attenuation *= object.attenuation(rng, ray, intersection.t);
-                            ray = match object.scatter(rng, ray, intersection.t) {
-                                Some(r) => r,
-                                _ => {
-                                    ray_color = Vector3::from([0.0; 3]);
-                                    break;
-                                }
-                            };
-                        } else {
-                            let t: f64 = (ray.direction.normalize().z() + 1.0) / 2.0;
-                            ray_color = ray_attenuation * lerp(Vector3::from([1.0; 3]), Vector3::new(0.5, 0.7, 1.0), t);
-                            break;
-                        }
-                        depth += 1;
-                    }
-                    if depth > self.max_depth {
-                        ray_color = Vector3::from([0.0; 3]);
-                    }
-                    acc_color += ray_color
+                    acc_color += self.ray_color(
+                        rng, 
+                        Ray::new(ray_origin, viewport_ij + ray_direction_offset - ray_origin), 
+                        scene
+                    );
                 }
                 image.set_pixel(acc_color / self.samples_per_pixel as f64, i, j);
             }
@@ -189,9 +168,14 @@ impl Camera {
                 move || {
                     let mut rng = R::from_os_rng();
                     let mut i = t;
+                    // Initialise scan line buffer.
+                    let zero_vec = Vector3::new(0.0, 0.0, 0.0);
+                    let mut scan_line = Vec::<Vector3>::new();
+                    scan_line.reserve(self.image_width);
+                    for _ in 0..self.image_width {
+                        scan_line.push(zero_vec);
+                    }
                     while i < image_height {
-                        let mut scan_line = Vec::<Vector3>::new();
-                        scan_line.reserve(self.image_width);
                         for j in 0..self.image_width {
                             let mut acc_color = Vector3::from([0.0; 3]);
                             for _ in 0..self.samples_per_pixel {
@@ -201,37 +185,16 @@ impl Camera {
                                 let ray_origin_offset = defocus_radius * (defocus_disk_sample.x() * u + defocus_disk_sample.y() * v);
                                 let ray_direction_offset = anti_aliasing_radius * Vector3::new(anti_aliasing_disk_sample.x(), 0.0, anti_aliasing_disk_sample.y());
                                 let ray_origin = self.look_from + ray_origin_offset;
-                                let mut ray = Ray::new(ray_origin, viewport_ij + ray_direction_offset - ray_origin);
-                                let mut ray_attenuation = Vector3::new(1.0, 1.0, 1.0);
-                                let mut ray_color = Vector3::from([0.0; 3]);
-                                let mut depth = 0;
-                                while depth < self.max_depth {
-                                    if let Some(intersection) = scene.intersect(ray, self.t_min, self.t_max) {
-                                        let object = scene.get(intersection.index);
-                                        ray_attenuation *= object.attenuation(&mut rng, ray, intersection.t);
-                                        ray = match object.scatter(&mut rng, ray, intersection.t) {
-                                            Some(r) => r,
-                                            _ => {
-                                                ray_color = Vector3::from([0.0; 3]);
-                                                break;
-                                            }
-                                        };
-                                    } else {
-                                        let t: f64 = (ray.direction.normalize().z() + 1.0) / 2.0;
-                                        ray_color = ray_attenuation * lerp(Vector3::from([1.0; 3]), Vector3::new(0.5, 0.7, 1.0), t);
-                                        break;
-                                    }
-                                    depth += 1;
-                                }
-                                if depth > self.max_depth {
-                                    ray_color = Vector3::from([0.0; 3]);
-                                }
-                                acc_color += ray_color
+                                acc_color += self.ray_color(
+                                    &mut rng, 
+                                    Ray::new(ray_origin, viewport_ij + ray_direction_offset - ray_origin), 
+                                    &scene
+                                );
                             }
-                            scan_line.push(acc_color / self.samples_per_pixel as f64);
+                            scan_line[j] = acc_color / self.samples_per_pixel as f64;
                         }
                         let mut img = image.lock().unwrap();
-                        (*img).set_row(scan_line, i);
+                        (*img).set_row(&scan_line, i);
                         i += thread_count;
                     }
                 }
@@ -246,6 +209,26 @@ impl Camera {
         // All threads have a single reference to image, which should be dropped at this point.
         // Thus, unless the mutex becomes poisoned, this should never panic.
         Arc::into_inner(image).unwrap().into_inner().unwrap()
+    }
+
+    fn ray_color<R: Rng + ?Sized>(&self, rng: &mut R, r: Ray, scene: &RenderableList<R>) -> Vector3 {
+        let mut ray = r;
+        let mut ray_attenuation = Vector3::new(1.0, 1.0, 1.0);
+        for _ in 0..self.max_depth {
+            if let Some(intersection) = scene.intersect(ray, self.t_min, self.t_max) {
+                let object = scene.get(intersection.index);
+                ray_attenuation *= object.attenuation(rng, ray, intersection.t);
+                if let Some(r) = object.scatter(rng, ray, intersection.t) {
+                    ray = r;
+                } else {
+                    break;
+                }
+            } else {
+                let t: f64 = (ray.direction.normalize().z() + 1.0) / 2.0;
+                return ray_attenuation * lerp(Vector3::new(1.0, 1.0, 1.0), Vector3::new(0.5, 0.7, 1.0), t);
+            }
+        }
+        return Vector3::new(0.0, 0.0, 0.0)
     }
 }
 
