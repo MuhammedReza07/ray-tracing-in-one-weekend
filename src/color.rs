@@ -1,5 +1,4 @@
-use std::f64;
-use crate::vector3::Vector3;
+use crate::vector4::Vector4;
 
 /// Representation of an RGB image.
 /// `pixels` should be read in row-major order.
@@ -8,8 +7,8 @@ pub struct Image {
     width: usize,
     height: usize,
     color_depth: usize,
-    encoding_gamma: f64,
-    pixels: Vec<Vector3>
+    encoding_gamma: f32,
+    pixels: Vec<Vector4>
 }
 
 impl Image {
@@ -17,9 +16,9 @@ impl Image {
         width: usize,
         height: usize,
         color_depth: usize,
-        encoding_gamma: f64,
+        encoding_gamma: f32,
     ) -> Self {
-        let zero_vec = Vector3::new(0.0, 0.0, 0.0);
+        let zero_vec = Vector4::new(0.0, 0.0, 0.0, 0.0);
         let mut pixels = Vec::with_capacity(width * height);
         for _ in 0..width * height {
             pixels.push(zero_vec);
@@ -33,11 +32,11 @@ impl Image {
         }
     }
 
-    pub fn set_pixel(&mut self, value: Vector3, i: usize, j: usize) {
+    pub fn set_pixel(&mut self, value: Vector4, i: usize, j: usize) {
         self.pixels[i * self.width + j] = value;
     }
 
-    pub fn set_row(&mut self, values: &Vec<Vector3>, i: usize) {
+    pub fn set_row(&mut self, values: &Vec<Vector4>, i: usize) {
         for j in 0..self.width {
             self.pixels[i * self.width + j] = values[j];
         }
@@ -47,25 +46,25 @@ impl Image {
         println!("P3\n{} {}\n{}", self.width, self.height, self.color_depth);
         self.pixels.iter()
         .for_each(|color| {
-            let r = f64::clamp(color.x(), 0.0, 1.0);
-            let g = f64::clamp(color.y(), 0.0, 1.0);
-            let b = f64::clamp(color.z(), 0.0, 1.0);
+            let r = f32::clamp(color.x(), 0.0, 1.0);
+            let g = f32::clamp(color.y(), 0.0, 1.0);
+            let b = f32::clamp(color.z(), 0.0, 1.0);
             println!(
                 "{} {} {}", 
-                (linear_to_gamma(r, self.encoding_gamma) * self.color_depth as f64) as usize,
-                (linear_to_gamma(g, self.encoding_gamma) * self.color_depth as f64) as usize,
-                (linear_to_gamma(b, self.encoding_gamma) * self.color_depth as f64) as usize
+                (linear_to_gamma(r, self.encoding_gamma) * self.color_depth as f32) as usize,
+                (linear_to_gamma(g, self.encoding_gamma) * self.color_depth as f32) as usize,
+                (linear_to_gamma(b, self.encoding_gamma) * self.color_depth as f32) as usize
             );
         });
     }
 }
 
 /// Linearly interpolate from `a` to `b`, `t` must be in `[0, 1]`.
-pub fn lerp(a: Vector3, b: Vector3, t: f64) -> Vector3 {
+pub fn lerp(a: Vector4, b: Vector4, t: f32) -> Vector4 {
     a + t * (b - a)
 }
 
 /// Perform gamma compression on a linear colour component.
-pub fn linear_to_gamma(l: f64, encoding_gamma: f64) -> f64 {
+pub fn linear_to_gamma(l: f32, encoding_gamma: f32) -> f32 {
     l.powf(encoding_gamma)
 }

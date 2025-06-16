@@ -5,5 +5,5 @@ pub trait Intersectable {
     /// Finds the smallest value of `t` such that `r` intersects the object and `t` lies in `[t_min, t_max]`.
     /// 
     /// Returns `Some(t)` if such a `t` is found, `None` otherwise.
-    fn intersect(&self, r: Ray, t_min: f64, t_max: f64) -> Option<f64>;
+    fn intersect(&self, r: Ray, t_min: f32, t_max: f32) -> Option<f32>;
 }

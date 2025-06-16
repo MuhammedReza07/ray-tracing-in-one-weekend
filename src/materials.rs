@@ -2,7 +2,7 @@ use crate::{
     intersectable::Intersectable,
     orientable::Orientable,
     ray::Ray,
-    vector3::Vector3
+    vector4::Vector4
 };
 use rand::Rng;
 use std::sync::Arc;
@@ -12,12 +12,12 @@ use std::sync::Arc;
 pub struct None;
 
 impl<R: Rng + ?Sized> Material<R> for None {
-    fn attenuation(&self, _rng: &mut R, _r: Ray, _t: f64, _n: Vector3, _is_inside: bool) -> Vector3 {
+    fn attenuation(&self, _rng: &mut R, _r: Ray, _t: f32, _n: Vector4, _is_inside: bool) -> Vector4 {
         // Do not attenuate incoming rays.
-        Vector3::new(1.0, 1.0, 1.0)
+        Vector4::new(1.0, 1.0, 1.0, 0.0)
     }
 
-    fn scatter(&self, _rng: &mut R, r: Ray, t: f64, _n: Vector3, _is_inside: bool) -> Option<Ray> {
+    fn scatter(&self, _rng: &mut R, r: Ray, t: f32, _n: Vector4, _is_inside: bool) -> Option<Ray> {
         // Do not scatter incoming rays.
         Some(Ray::new(r.at(t), r.direction))
     }
@@ -30,20 +30,20 @@ impl<R: Rng + ?Sized> Material<R> for None {
 pub trait Tangible<R: Rng + ?Sized>: Intersectable + Orientable {
     fn material(&self) -> &Arc<dyn Material<R> + Send + Sync>;
 
-    fn attenuation(&self, rng: &mut R, r: Ray, t: f64) -> Vector3 {
+    fn attenuation(&self, rng: &mut R, r: Ray, t: f32) -> Vector4 {
         self.material().attenuation(rng, r, t, self.normal(r.at(t)), self.is_inside(r, t))
     }
 
-    fn scatter(&self, rng: &mut R, r: Ray, t: f64) -> Option<Ray> {
+    fn scatter(&self, rng: &mut R, r: Ray, t: f32) -> Option<Ray> {
         self.material().scatter(rng, r, t, self.normal(r.at(t)), self.is_inside(r, t))
     }
 }
 
 /// Trait defining a common interface for materials.
 pub trait Material<R: Rng + ?Sized> {
-    fn attenuation(&self, rng: &mut R, r: Ray, t: f64, n: Vector3, is_inside: bool) -> Vector3;
+    fn attenuation(&self, rng: &mut R, r: Ray, t: f32, n: Vector4, is_inside: bool) -> Vector4;
 
-    fn scatter(&self, rng: &mut R, r: Ray, t: f64, n: Vector3, is_inside: bool) -> Option<Ray>;
+    fn scatter(&self, rng: &mut R, r: Ray, t: f32, n: Vector4, is_inside: bool) -> Option<Ray>;
 }
 
 /// Dielectric material that attenuates rays in accordance with Beer's law.
