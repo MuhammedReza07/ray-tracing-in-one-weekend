@@ -4,11 +4,6 @@ use crate::{
 };
 use rand::Rng;
 
-pub struct Intersection {
-    pub t: f32,
-    pub index: usize
-}
-
 pub struct RenderableList<R: Rng + ?Sized> {
     elements: Vec<Box<dyn Tangible<R> + Send + Sync>>
 }
@@ -29,23 +24,9 @@ impl<R: Rng + ?Sized> RenderableList<R> {
     /// Finds the smallest value of `t` such that `r` intersects an element of the list and `t` lies in `[t_min, t_max]`, and the index `i`
     /// 
     /// of the list element that yields the minimal `t`. Returns `Some(Intersection { t, i })` if such a `t` is found, `None` otherwise.
-    pub fn intersect(&self, r: Ray, t_min: f32, t_max: f32) -> Option<Intersection> {
-        let mut intersection_index: usize = 0;
-        let mut intersection_t = f32::INFINITY;
-        for (i, e) in self.elements.iter().enumerate() {
-            if let Some(t) = e.intersect(r, t_min, t_max) {
-                if t < intersection_t {
-                    intersection_index = i;
-                    intersection_t = t;
-                }
-            } else {
-                continue;
-            }
-        }
-        // intersection_t should never be f64::INFINITY.
-        match intersection_t.is_finite() {
-            true => Some(Intersection { t: intersection_t, index: intersection_index }),
-            _ => None
-        }
+    pub fn intersect(&self, r: Ray, t_min: f32, t_max: f32) -> (f32, &(dyn Tangible<R> + Send + Sync)) {
+        self.elements.iter()
+        .map(|e| (e.intersect(r, t_min, t_max), &**e))
+        .fold((f32::INFINITY, &*self.elements[0]), |acc, e| if e.0 < acc.0 { e } else { acc })
     }
 }

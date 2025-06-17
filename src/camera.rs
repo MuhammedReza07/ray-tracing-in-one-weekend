@@ -199,10 +199,10 @@ impl Camera {
         let mut ray = r;
         let mut ray_attenuation = Vector4::new(1.0, 1.0, 1.0, 0.0);
         for _ in 0..self.max_depth {
-            if let Some(intersection) = scene.intersect(ray, self.t_min, self.t_max) {
-                let object = scene.get(intersection.index);
-                ray_attenuation *= object.attenuation(rng, ray, intersection.t);
-                if let Some(r) = object.scatter(rng, ray, intersection.t) {
+            let (t, object) = scene.intersect(ray, self.t_min, self.t_max);
+            if t.is_finite() {
+                ray_attenuation *= object.attenuation(rng, ray, t);
+                if let Some(r) = object.scatter(rng, ray, t) {
                     ray = r;
                 } else {
                     break;
