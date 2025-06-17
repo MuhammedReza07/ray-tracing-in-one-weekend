@@ -151,10 +151,6 @@ impl Camera {
             let handle = thread::spawn(
                 move || {
                     let mut rng = R::from_os_rng();
-                    // Initialise scan line buffer (old, with preallocation).
-                    // let div = self.image_height / thread_count;
-                    // let offset = if self.image_height - thread_count * div >= t + 1 { 1 } else { 0 };
-                    // let mut scan_lines: Vec<Vector4> = Vec::with_capacity(self.image_width * (div + offset));
                     let scan_lines: Vec<Vector4> = (t..self.image_height)
                     .step_by(thread_count)
                     .flat_map(|i| iter::repeat_n(i, self.image_width))
@@ -172,22 +168,6 @@ impl Camera {
                         acc_color / self.samples_per_pixel as f32
                     })
                     .collect();
-                    /* let mut i = t;
-                    while i < self.image_height {
-                        for j in 0..self.image_width {
-                            let mut acc_color = Vector4::new(0.0, 0.0, 0.0, 0.0);
-                            for _ in 0..self.samples_per_pixel {
-                                let ray = self.ray(&mut rng, i, j);
-                                acc_color += self.ray_color(
-                                    &mut rng, 
-                                    ray, 
-                                    &scene
-                                );
-                            }
-                            scan_lines.push(acc_color / self.samples_per_pixel as f32);
-                        }
-                        i += thread_count;
-                    } */
                     tx.send((t, scan_lines)).unwrap();
                 }
             );
