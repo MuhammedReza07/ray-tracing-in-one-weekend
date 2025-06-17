@@ -10,6 +10,11 @@ real    19m29,230s
 user    19m17,328s
 sys     0m5,682s
 
+No concurrency (with additional IO), compiler optimisations (opt-level=3) with target-cpu=native, SIMD (SSE4.1) for vector operations
+real    7m28,017s
+user    7m23,339s
+sys     0m4,724s
+
 Multithreading (8 threads)
 real    7m28,250s
 user    25m15,926s
@@ -46,19 +51,7 @@ real    3m46,871s
 user    13m29,051s
 sys     0m5,473s
 
-Multithreading (4 threads, mutex locking for each row write), compiler optimisations (-O flag) with target-cpu=native, SIMD (SSE4.1) for vector operations
-real    3m23,803s
-user    11m35,097s
-sys     0m6,126s
-
-real    3m9,188s
-user    11m25,610s
-sys     0m5,594s
-
-real    3m6,183s
-user    11m20,226s
-sys     0m5,789s
-
+Multithreading (4 threads, mutex locking for each row write), compiler optimisations (opt-level) with target-cpu=native, SIMD (SSE4.1) for vector operations
 (opt-level=1)
 real    3m28,151s
 user    11m57,466s
@@ -76,3 +69,43 @@ sys     0m6,509s
 real    3m14,013s
 user    11m47,788s
 sys     0m7,506s
+
+(opt-level=3)
+real    3m23,803s
+user    11m35,097s
+sys     0m6,126s
+
+real    3m9,188s
+user    11m25,610s
+sys     0m5,594s
+
+real    3m6,183s
+user    11m20,226s
+sys     0m5,789s
+
+Multithreading (multiple producer, single consumer with no mutex), compiler optimisations (opt-level=3) with target-cpu=native, SIMD (SSE4.1) for vector operations
+(Original nested loop)
+real    3m8,629s
+user    11m29,765s
+sys     0m5,270s
+
+real    2m56,770s
+user    11m4,564s
+sys     0m4,783s
+
+real    2m4,430s
+user    7m12,080s
+sys     0m0,948s
+
+(Iterators)
+real    3m8,143s
+user    11m32,302s
+sys     0m5,164s
+
+real    3m2,200s
+user    11m19,798s
+sys     0m5,637s
+
+real    3m0,935s
+user    11m21,074s
+sys     0m4,769s

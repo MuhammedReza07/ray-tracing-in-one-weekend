@@ -44,20 +44,20 @@ fn main() {
     let hfov_rad = vfov_to_hfov(VFOV_DEG.to_radians(), ASPECT_RATIO);
     let defocus_angle_rad = DEFOCUS_ANGLE_DEG.to_radians();
     let camera = Camera::new(
-        ASPECT_RATIO, 
-        Vector4::new(13.0, 3.0, 2.0, 0.0),
-        Vector4::new(0.0, 0.0, 0.0, 0.0),
-        Vector4::new(0.0, 0.0, 1.0, 0.0),
+        ASPECT_RATIO,
+        IMAGE_WIDTH,
         COLOR_DEPTH,
         DECODING_GAMMA,
         hfov_rad,
-        IMAGE_WIDTH,
-        T_MIN,
-        T_MAX,
-        MAX_DEPTH,
-        SAMPLES_PER_PIXEL,
         FOCUS_DISTANCE,
+        Vector4::new(13.0, 3.0, 2.0, 0.0),
+        Vector4::new(0.0, 0.0, 0.0, 0.0),
+        Vector4::new(0.0, 0.0, 1.0, 0.0),
+        SAMPLES_PER_PIXEL,
         defocus_angle_rad,
+        MAX_DEPTH,
+        T_MIN,
+        T_MAX
     );
 
     // Materials.
