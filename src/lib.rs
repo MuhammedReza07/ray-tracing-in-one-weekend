@@ -26,11 +26,9 @@ pub mod renderable_list;
 /// Intersectable surfaces.
 pub mod surfaces;
 
-/// Linear algebra functions for vectors in 3-dimensional Euclidean space (i.e. `R^3`).
-pub mod vector3;
-
-/// The functions in the `vector3` module, now using SIMD via the x86/x86_64 SIMD extensions provided in SSE(<=4.1).
+/// Linear algebra functions for vectors in 4-dimensional Euclidean space (i.e. `R^4`), including some functions 
+/// for vectors in 3-dimensional space which may be applied to 4-vectors with `w = 0`.
 /// 
-/// Note that unlike `vector3::Vector3`, each component of the vectors in this library are `f32`, rather than `f64`.
-/// Also, there is a fourth component, `w`, which is why the name includes `vector4` instead of `vector3`.
+/// The functions in this module use intrinsics for Intel's SSE ISA extensions to improve performance by leveraging SIMD,
+/// but they have fallback variants for older (<4.1) SSE versions and no SSE at all.
 pub mod vector4;
