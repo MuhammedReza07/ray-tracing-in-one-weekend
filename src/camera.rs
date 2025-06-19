@@ -129,7 +129,6 @@ impl Camera {
         image
     }
 
-    // TODO: Handle the case where thread_count = 1 or thread_count = 0 (if relevant).
     /// Each thread has its own RNG initialised using `SeedableRng::from_os_rng()`.
     pub fn render_concurrent<R: Rng + SeedableRng + 'static>(
         self, 

@@ -109,3 +109,6 @@ sys     0m5,637s
 real    3m0,935s
 user    11m21,074s
 sys     0m4,769s
+
+The differences in performance are actually rather negligible, the ~2m4s was probably either a fluke or data from a different render.
+Both solutions usually terminate within ~3m.

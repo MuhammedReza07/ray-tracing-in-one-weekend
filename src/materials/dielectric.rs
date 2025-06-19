@@ -25,7 +25,7 @@ impl Dielectric {
 
 impl<R: Rng + ?Sized> Material<R> for Dielectric {
     fn attenuation(&self, _rng: &mut R, r: Ray, t: f32, _n: Vector4, is_inside: bool) -> Vector4 {
-        if is_inside {
+        if is_inside && self.absorbance != Vector4::new(0.0, 0.0, 0.0, 0.0) {
             return Vector4::new(
                 f32::exp(-self.absorbance.x() * r.length(t)),
                 f32::exp(-self.absorbance.y() * r.length(t)),

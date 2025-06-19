@@ -37,9 +37,7 @@ impl Image {
     }
 
     pub fn set_row(&mut self, values: &[Vector4], i: usize) {
-        for j in 0..self.width {
-            self.pixels[i * self.width + j] = values[j];
-        }
+        (0..self.width).for_each(|j| self.pixels[i * self.width + j] = values[j]);
     }
 
     pub fn write_p3_image_stdout(&self) {
